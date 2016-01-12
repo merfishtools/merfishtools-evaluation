@@ -1,0 +1,292 @@
+configfile: "config.yaml"
+
+
+merfishtools = "../target/release/merfishtools"
+
+
+contexts = ["paper"]
+datasets = ["140genesData"]
+
+
+rule all:
+    input:
+        expand([
+            "results/{context}/foldchange_cdf/{dataset}.1.A-vs-B.{gene}.default.foldchange_cdf.pdf",
+            "results/{context}/expression_pmf/{dataset}.1.cell0.{gene}.default.expression_pmf.pdf"
+        ], gene=config["genes"], context=contexts, dataset=datasets),
+        expand([
+            "results/{context}/{dataset}.default.pca.pdf",
+            "results/{context}/{dataset}.default.expression_dist.pdf",
+            "results/{context}/{dataset}.default.overdispersion.pdf",
+            "results/{context}/{dataset}.default.correlation.pdf"
+        ], context=contexts, dataset=datasets),
+        expand("results/{context}/simulation-MHD{dist}/MHD{dist}.squared_error.default.pdf", context=contexts, dist=[2, 4]),
+        expand("results/{context}/default.dataset_correlation.pdf", context=contexts)
+
+
+rule format:
+    input:
+        "data/{dataset}.csv.bz2"
+    output:
+        "data/{dataset}.{experiment}.{group}.txt"
+    script:
+        "scripts/format-dataset.py"
+
+
+
+rule raw_counts:
+    input:
+        "data/{dataset}.{experiment}.{group}.txt"
+    output:
+        "counts/{dataset}.{experiment}.{group}.txt"
+    script:
+        "scripts/raw-counts.py"
+
+
+rule expressions:
+    input:
+        "data/{dataset}.{experiment}.{group}.txt"
+    output:
+        pmf="expressions/{dataset}.{experiment}.{group}.{settings}.txt",
+        est="expressions/{dataset}.{experiment}.{group}.{settings}.est.txt",
+    params:
+        dist=lambda wildcards: config["datasets"][wildcards.dataset]["dist"],
+        bits=lambda wildcards: config["datasets"][wildcards.dataset]["N"]
+    benchmark:
+        "bench/exp/{dataset}.{settings}.txt"
+    threads: 8
+    shell:
+        "{merfishtools} exp --hamming-dist {params.dist} -N {params.bits} "
+        "--estimate {output.est} -t {threads} < {input} > {output.pmf}"
+
+
+rule diffexp:
+    input:
+        "expressions/{dataset}.{experiment}.{group1}.{settings}.txt",
+        "expressions/{dataset}.{experiment}.{group2}.{settings}.txt"
+    output:
+        pmf="diffexp/{dataset}.{experiment}.{group1}-vs-{group2}.{settings}.txt",
+        est="diffexp/{dataset}.{experiment}.{group1}-vs-{group2}.{settings}.est.txt"
+    benchmark:
+        "bench/diffexp/{dataset}.{experiment}.{group1}-vs-{group2}.{settings}.txt"
+    threads: 8
+    shell:
+        "{merfishtools} diffexp -t {threads} --pmf {output.pmf} {input} "
+        "> {output.est}"
+
+
+rule plot_expression_pmf:
+    input:
+        expr="expressions/{dataset}.{experiment}.{group}.{settings}.txt",
+        raw_counts="counts/{dataset}.{experiment}.{group}.txt"
+    output:
+        "results/{context}/expression_pmf/{dataset}.{experiment}.{group}.{gene}.{settings}.expression_pmf.svg"
+    script:
+        "scripts/plot-expression-pmf.py"
+
+
+rule plot_foldchange_cdf:
+    input:
+        pmf="diffexp/{dataset}.{experiment}.{group1}-vs-{group2}.{settings}.txt",
+        est="diffexp/{dataset}.{experiment}.{group1}-vs-{group2}.{settings}.est.txt"
+    output:
+        "results/{context}/foldchange_cdf/{dataset}.{experiment}.{group1}-vs-{group2}.{gene}.{settings}.foldchange_cdf.svg"
+    script:
+        "scripts/plot-foldchange-cdf.py"
+
+
+rule expression_matrix:
+    input:
+        "expressions/{dataset}.{experiment}.{group}.{settings}.est.txt"
+    output:
+        "expressions/{dataset}.{experiment}.{group}.{settings}.matrix.txt"
+    script:
+        "scripts/expression-matrix.py"
+
+
+rule count_matrix:
+    input:
+        "counts/{dataset}.{experiment}.{group}.txt"
+    output:
+        "counts/{dataset}.{experiment}.{group}.matrix.txt"
+    script:
+        "scripts/count-matrix.py"
+
+
+def matrices(dataset, type="expressions", settings="default"):
+    suffix = ".{}.".format(settings) if type == "expressions" else "."
+    return expand("{type}/{dataset}.{experiment}.all{suffix}matrix.txt",
+                  dataset=dataset,
+                  type=type,
+                  suffix=suffix,
+                  experiment=range(1, config["datasets"][dataset]["experiments"] + 1))
+
+
+rule plot_expression_dist:
+    input:
+        lambda wildcards: matrices(wildcards.dataset, settings=wildcards.settings)
+    output:
+        "results/{context}/{dataset}.{settings}.expression_dist.svg"
+    script:
+        "scripts/plot-expression-dist.py"
+
+
+rule plot_overdispersion:
+    input:
+        lambda wildcards: matrices(wildcards.dataset, settings=wildcards.settings)
+    output:
+        "results/{context}/{dataset}.{settings}.overdispersion.svg"
+    script:
+        "scripts/plot-overdispersion.py"
+
+
+rule plot_correlation:
+    input:
+        lambda wildcards: matrices(wildcards.dataset, settings=wildcards.settings)
+    output:
+        "results/{context}/{dataset}.{settings}.correlation.svg"
+    script:
+        "scripts/plot-correlation.py"
+
+
+rule plot_pca:
+    input:
+        lambda wildcards: matrices(wildcards.dataset, settings=wildcards.settings)
+    output:
+        "results/{context}/{dataset}.{settings}.pca.svg"
+    script:
+        "scripts/plot-pca.py"
+
+
+rule plot_codebook:
+    input:
+        "data/{codebook}.codebook.txt"
+    output:
+        "results/{context}/codebook/{codebook}.neighbors.svg"
+    params:
+        neighbor_dist=4
+    script:
+        "scripts/plot-codebook-neighbors.py"
+
+
+rule simulate:
+    input:
+        mhd4="data/140genes.1.codebook.txt",
+        mhd2="data/1001genes.1.codebook.txt"
+    output:
+        sim_counts_mhd4="data/simulated-MHD4.{mean}.all.txt",
+        sim_counts_mhd2="data/simulated-MHD2.{mean}.all.txt",
+        known_counts="data/simulated.{mean}.known.txt"
+    params:
+        cell_count=10
+    script:
+        "scripts/simulate-counts.py"
+
+
+means = list(range(5, 40, 5))
+
+
+rule plot_simulation:
+    input:
+        posterior_counts=expand("expressions/simulated-MHD{{dist}}.{mean}.all.{{settings}}.est.txt", mean=means),
+        raw_counts=expand("counts/simulated-MHD{{dist}}.{mean}.all.txt", mean=means),
+        known_counts=expand("data/simulated.{mean}.known.txt", mean=means)
+    output:
+        "results/{context}/simulation-MHD{dist}/MHD{dist}.error.{settings}.svg"
+    params:
+        means=means
+    script:
+        "scripts/plot-simulation.py"
+
+
+rule plot_dataset_correlation:
+    input:
+        small=matrices("140genesData"),
+        large=matrices("1001genesData"),
+        small_counts=matrices("140genesData", type="counts"),
+        large_counts=matrices("1001genesData", type="counts")
+    output:
+        "results/{context}/{settings}.dataset_correlation.svg"
+    script:
+        "scripts/plot-dataset-correlation.py"
+
+
+rule figure1:
+    input:
+        b="results/paper/expression_pmf/140genesData.1.cell0.COL5A1.default.expression_pmf.svg",
+        a="results/paper/expression_pmf/140genesData.1.cell0.CKAP5.default.expression_pmf.svg",
+        c="results/paper/foldchange_cdf/140genesData.1.A-vs-B.COL5A1.default.foldchange_cdf.svg"
+    output:
+        "figures/fig1.svg"
+    run:
+        import svgutils.transform as sg
+        fig = sg.SVGFigure("24.8cm", "6cm")
+        a = sg.fromfile(input.a).getroot()
+        b = sg.fromfile(input.b).getroot()
+        c = sg.fromfile(input.c).getroot()
+        b.moveto(294, 0)
+        c.moveto(588, 0)
+
+        la = sg.TextElement(0,10, "a", size=12, weight="bold")
+        lb = sg.TextElement(294,10, "b", size=12, weight="bold")
+        lc = sg.TextElement(588,10, "c", size=12, weight="bold")
+
+        fig.append([a, b, c, la, lb, lc])
+        fig.save(output[0])
+
+
+rule figure2:
+    input:
+        a="results/paper/140genesData.default.expression_dist.svg",
+        b="results/paper/default.dataset_correlation.svg",
+        c="results/paper/simulation-MHD4/MHD4.error.default.svg",
+        d="results/paper/simulation-MHD2/MHD2.error.default.svg"
+    output:
+        "figures/fig2.svg"
+    run:
+        import svgutils.transform as sg
+        fig = sg.SVGFigure("16.2cm", "12cm")
+        a = sg.fromfile(input.a).getroot()
+        b = sg.fromfile(input.b).getroot()
+        c = sg.fromfile(input.c).getroot()
+        d = sg.fromfile(input.d).getroot()
+        b.moveto(288, 0)
+        c.moveto(0, 200)
+        d.moveto(288, 200)
+
+        la = sg.TextElement(0,10, "a", size=12, weight="bold")
+        lb = sg.TextElement(288,10, "b", size=12, weight="bold")
+        lc = sg.TextElement(0,210, "c", size=12, weight="bold")
+        ld = sg.TextElement(288,210, "d", size=12, weight="bold")
+
+        fig.append([a, b, c, d, la, lb, lc, ld])
+        fig.save(output[0])
+
+
+rule figure3:
+    input:
+        a="results/paper/140genesData.default.pca.svg",
+        b="results/paper/140genesData.default.overdispersion.svg"
+    output:
+        "figures/fig3.svg"
+    run:
+        import svgutils.transform as sg
+        fig = sg.SVGFigure("17.2cm", "11.5cm")
+        a = sg.fromfile(input.a).getroot()
+        b = sg.fromfile(input.b).getroot()
+        b.moveto(0, 195)
+
+        la = sg.TextElement(0,10, "a", size=12, weight="bold")
+        lb = sg.TextElement(0,205, "b", size=12, weight="bold")
+
+        fig.append([a, b, la, lb])
+        fig.save(output[0])
+
+
+rule svg2pdf:
+    input:
+        "{prefix}.svg"
+    output:
+        "{prefix}.pdf"
+    shell:
+        "rsvg-convert -f pdf {input} > {output}"

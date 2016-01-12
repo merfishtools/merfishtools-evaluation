@@ -1,0 +1,35 @@
+groups:
+  A: "^[0-9]$"
+  B: "^1[0-9]$"
+  cell0: "^0$"
+  all: ".*"
+
+datasets:
+  140genesData:
+    dist: 4
+    N: 16
+    experiments: 7
+  1001genesData:
+    dist: 2
+    N: 14
+    experiments: 3
+  simulated-MHD4:
+    dist: 4
+    N: 16
+    experiments: 1
+  simulated-MHD2:
+    dist: 2
+    N: 14
+    experiments: 1
+
+settings:
+  default:
+
+genes:
+  - COL5A1
+  - BRCA2
+  - CKAP5
+  - ATP11A
+
+plots:
+  figsize: [4.224, 2.904]
