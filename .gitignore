@@ -1,0 +1,6 @@
+*
+!.gitignore
+!Snakefile
+!environment.yml
+!config.yaml
+!scripts/*
