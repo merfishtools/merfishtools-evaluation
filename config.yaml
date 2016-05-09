@@ -40,11 +40,7 @@ codebooks:
   simulated-MHD2: codebook/simulated-MHD2.txt
 
 settings:
-  default:
-
-genes:
-  - FLNC
-  - PRKCA
+  default: ""
 
 plots:
   figsize: [2.4, 2]

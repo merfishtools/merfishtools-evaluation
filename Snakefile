@@ -1,7 +1,5 @@
 from itertools import combinations
 import pandas as pd
-# TODO remove once packaged
-sys.path.insert(0, "../merfishtools")
 import merfishtools as mt
 import svgutils.transform as sg
 
@@ -14,10 +12,7 @@ at http://zhuang.harvard.edu/merfish.
 
 configfile: "config.yaml"
 
-
-# TODO remove once packaged
-merfishtools = "../merfishtools/target/release/merfishtools"
-#merfishtools = "merfishtools"
+merfishtools = "merfishtools"
 
 
 contexts = ["paper"]
@@ -350,7 +345,7 @@ rule plot_simulation:
         known_counts=expand("data/simulated.{mean}.known.txt", mean=means)
     output:
         violin="results/{context}/simulation-MHD{dist}/MHD{dist}.error.{settings}.svg",
-        scatter_raw="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter-raw.{settings}.svg"
+        scatter_raw="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter-raw.{settings}.svg",
         scatter_posterior="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter-posterior.{settings}.svg"
     params:
         means=means
@@ -400,7 +395,7 @@ rule plot_go_term_enrichment:
 #### figures ####
 
 
-load_svg = lambda path: return sg.fromfile(path).getroot()
+load_svg = lambda path: sg.fromfile(path).getroot()
 label_plot = lambda x, y, label: sg.TextElement(x, y, label, size=12, weight="bold")
 
 
@@ -413,7 +408,7 @@ rule figure_example:
         e="results/paper/expression_pmf/140genesData.1.cell0.PRKCA.default.expression_pmf.nolegend.svg",
         f="results/paper/foldchange_cdf/140genesData.1.cell0-vs-cell34.PRKCA.default.foldchange_cdf.legend.svg"
     output:
-        "figures/fig_example_{gene}.svg"
+        "figures/fig_example.svg"
     run:
         fig = sg.SVGFigure("6.4in", "1.8in")
         a = load_svg(input.a)
