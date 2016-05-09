@@ -54,9 +54,6 @@ counts = pd.concat(counts)
 plt.scatter(counts["known"], counts["raw"], s=1, c="k", alpha=0.3, rasterized=True, edgecolors="face", marker="o")
 plt.scatter(counts["known"], counts["posterior"], s=1, c="r", alpha=0.3, rasterized=True, edgecolors="face", marker="o")
 
-#sns.kdeplot(counts["known"], counts["raw"], bw=2, shade=True, shade_lowest=False, alpha=0.5, cmap="Greys", n_levels=60)
-#sns.kdeplot(counts["known"], counts["posterior"], bw=2, shade=True, shade_lowest=False, alpha=0.5, cmap="Reds", n_levels=60)
-
 maxv = max(plt.xlim()[1], plt.ylim()[1])
 
 

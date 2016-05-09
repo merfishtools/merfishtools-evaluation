@@ -2,9 +2,13 @@ from itertools import combinations
 import pandas as pd
 sys.path.insert(0, "../")
 import merfishtools as mt
+import svgutils.transform as sg
 
 
-"""Analysis of MERFISHtools, using the data published at http://zhuang.harvard.edu/merfish."""
+"""
+Analysis of MERFISHtools, using the data published
+at http://zhuang.harvard.edu/merfish.
+"""
 
 
 configfile: "config.yaml"
@@ -17,7 +21,6 @@ merfishtools = "../target/release/merfishtools"
 contexts = ["paper"]
 datasets = ["140genesData"]
 types = ["expressions", "normalized_expressions"]
-
 
 
 def experiments(dataset):
@@ -35,12 +38,15 @@ def matrices(dataset, type="expressions", settings="default"):
 
 rule all:
     input:
-        expand("figures/fig_example_{gene}.pdf", gene=config["genes"]),
+        "figures/fig_example.pdf",
         "figures/fig_simulation.pdf",
         expand("figures/fig_{dataset}.{type}.clustering.pdf", dataset=datasets, type=types),
         expand("figures/fig_{dataset}.multidiffexp.pdf", dataset=datasets),
         expand("results/{context}/{dataset}.{type}.default.qqplot.pdf", context="paper", dataset=datasets, type=types),
         "figures/model.pdf", "figures/sketch.pdf"
+
+
+#### handling raw data ####
 
 
 rule format:
@@ -70,6 +76,18 @@ rule raw_counts:
         "scripts/raw-counts.py"
 
 
+rule count_matrix:
+    input:
+        "counts/{dataset}.{experiment}.{group}.txt"
+    output:
+        "counts/{dataset}.{experiment}.{group}.matrix.txt"
+    script:
+        "scripts/count-matrix.py"
+
+
+#### estimating gene expressions ####
+
+
 def get_codebook(wildcards):
     codebooks = config["codebooks"][wildcards.dataset]
     if isinstance(codebooks, str):
@@ -95,6 +113,43 @@ rule expressions:
         "--estimate {output.est} -t {threads} < {input.data} > {output.pmf}"
 
 
+rule expression_matrix:
+    input:
+        "expressions/{dataset}.{experiment}.{group}.{settings}.est.txt"
+    output:
+        "expressions/{dataset}.{experiment}.{group}.{settings}.matrix.txt"
+    script:
+        "scripts/expression-matrix.py"
+
+
+#### normalization ####
+
+
+rule scale_factors:
+    input:
+        lambda wildcards: matrices(wildcards.dataset, settings=wildcards.settings)
+    output:
+        "normalized_expressions/{dataset}.{settings}.scale_factors.txt"
+    params:
+        experiments=lambda wildcards: experiments(wildcards.dataset)
+    script:
+        "scripts/normalize.py"
+
+
+rule normalize_expression_matrix:
+    input:
+        expr="expressions/{dataset}.{experiment}.{group}.{settings}.matrix.txt",
+        scales="normalized_expressions/{dataset}.{settings}.scale_factors.txt"
+    output:
+        "normalized_expressions/{dataset}.{experiment}.{group}.{settings}.matrix.txt"
+    run:
+        expr = pd.read_table(input.expr, index_col=0)
+        scales = pd.read_table(input.scales, index_col=0, squeeze=True, header=None)
+        print(scales)
+        expr *= scales[int(wildcards.experiment)]
+        expr.to_csv(output[0], sep="\t")
+
+
 rule normalize_cdf:
     input:
         cdf="expressions/{dataset}.{experiment}.{group}.{settings}.txt",
@@ -106,6 +161,9 @@ rule normalize_cdf:
         scales = pd.read_table(input.scales, index_col=0, squeeze=True, header=None)
         cdf["expr"] *= scales[int(wildcards.experiment)]
         cdf.to_csv(output[0], sep="\t")
+
+
+#### differential expression analysis ####
 
 
 def diffexp_input(wildcards):
@@ -152,6 +210,37 @@ rule multidiffexp:
         "--pmf {output.pmf} {input} > {output.est}"
 
 
+rule enrichment:
+    input:
+        "multidiffexp/{dataset}.{settings}.est.txt"
+    output:
+        table="results/paper/{dataset}.{settings}.go_enrichment.txt"
+    script:
+        "scripts/go-enrichment.R"
+
+
+#### simulation ####
+
+
+rule simulate:
+    input:
+        mhd4=config["codebooks"]["simulated-MHD4"],
+        mhd2=config["codebooks"]["simulated-MHD2"]
+    output:
+        sim_counts_mhd4="data/simulated-MHD4.{mean}.all.txt",
+        sim_counts_mhd2="data/simulated-MHD2.{mean}.all.txt",
+        known_counts="data/simulated.{mean}.known.txt",
+        stats_mhd4="data/simulated-MHD4.{mean}.stats.txt",
+        stats_mhd2="data/simulated-MHD2.{mean}.stats.txt"
+    params:
+        cell_count=100
+    script:
+        "scripts/simulate-counts.py"
+
+
+#### plots ####
+
+
 rule plot_multidiffexp:
     input:
        diffexp="multidiffexp/{dataset}.{settings}.est.txt",
@@ -163,15 +252,6 @@ rule plot_multidiffexp:
        expmnts=lambda wildcards: experiments(wildcards.dataset)
     script:
        "scripts/plot-multidiffexp.py"
-
-
-rule enrichment:
-    input:
-        "multidiffexp/{dataset}.{settings}.est.txt"
-    output:
-        table="results/paper/{dataset}.{settings}.go_enrichment.txt"
-    script:
-        "scripts/go-enrichment.R"
 
 
 rule plot_enrichment:
@@ -204,38 +284,6 @@ rule plot_foldchange_cdf:
         "scripts/plot-foldchange-cdf.py"
 
 
-rule expression_matrix:
-    input:
-        "expressions/{dataset}.{experiment}.{group}.{settings}.est.txt"
-    output:
-        "expressions/{dataset}.{experiment}.{group}.{settings}.matrix.txt"
-    script:
-        "scripts/expression-matrix.py"
-
-
-rule normalize_expression_matrix:
-    input:
-        expr="expressions/{dataset}.{experiment}.{group}.{settings}.matrix.txt",
-        scales="normalized_expressions/{dataset}.{settings}.scale_factors.txt"
-    output:
-        "normalized_expressions/{dataset}.{experiment}.{group}.{settings}.matrix.txt"
-    run:
-        expr = pd.read_table(input.expr, index_col=0)
-        scales = pd.read_table(input.scales, index_col=0, squeeze=True, header=None)
-        print(scales)
-        expr *= scales[int(wildcards.experiment)]
-        expr.to_csv(output[0], sep="\t")
-
-
-rule count_matrix:
-    input:
-        "counts/{dataset}.{experiment}.{group}.txt"
-    output:
-        "counts/{dataset}.{experiment}.{group}.matrix.txt"
-    script:
-        "scripts/count-matrix.py"
-
-
 rule plot_qq:
     input:
         lambda wildcards: matrices(wildcards.dataset, type=wildcards.type, settings=wildcards.settings)
@@ -245,17 +293,6 @@ rule plot_qq:
         experiments=lambda wildcards: experiments(wildcards.dataset)
     script:
         "scripts/plot-qq.py"
-
-
-rule scale_factors:
-    input:
-        lambda wildcards: matrices(wildcards.dataset, settings=wildcards.settings)
-    output:
-        "normalized_expressions/{dataset}.{settings}.scale_factors.txt"
-    params:
-        experiments=lambda wildcards: experiments(wildcards.dataset)
-    script:
-        "scripts/normalize.py"
 
 
 rule plot_expression_dist:
@@ -301,22 +338,6 @@ rule plot_tsne:
         "scripts/plot-tsne.py"
 
 
-rule simulate:
-    input:
-        mhd4=config["codebooks"]["simulated-MHD4"],
-        mhd2=config["codebooks"]["simulated-MHD2"]
-    output:
-        sim_counts_mhd4="data/simulated-MHD4.{mean}.all.txt",
-        sim_counts_mhd2="data/simulated-MHD2.{mean}.all.txt",
-        known_counts="data/simulated.{mean}.known.txt",
-        stats_mhd4="data/simulated-MHD4.{mean}.stats.txt",
-        stats_mhd2="data/simulated-MHD2.{mean}.stats.txt"
-    params:
-        cell_count=100
-    script:
-        "scripts/simulate-counts.py"
-
-
 means = list(range(5, 40, 5))
 
 
@@ -360,6 +381,7 @@ rule plot_dataset_correlation:
 
 comparisons = list(combinations(experiments("140genesData"), 2))
 
+
 rule plot_go_term_enrichment:
     input:
         expand("diffexp/140genesData.{experiment[0]}.all-vs-{experiment[1]}.all.default.est.txt",
@@ -372,25 +394,43 @@ rule plot_go_term_enrichment:
         "scripts/experiment-diffexp.py"
 
 
+#### figures ####
+
+
+load_svg = lambda path: return sg.fromfile(path).getroot()
+label_plot = lambda x, y, label: sg.TextElement(x, y, label, size=12, weight="bold")
+
+
 rule figure_example:
     input:
-        a="results/paper/expression_pmf/140genesData.1.cell34.{gene}.default.expression_pmf.legend.svg",
-        b="results/paper/expression_pmf/140genesData.1.cell0.{gene}.default.expression_pmf.nolegend.svg",
-        c="results/paper/foldchange_cdf/140genesData.1.cell0-vs-cell34.{gene}.default.foldchange_cdf.nolegend.svg"
+        a="results/paper/expression_pmf/140genesData.1.cell34.FLNC.default.expression_pmf.nolegend.svg",
+        b="results/paper/expression_pmf/140genesData.1.cell0.FLNC.default.expression_pmf.nolegend.svg",
+        c="results/paper/foldchange_cdf/140genesData.1.cell0-vs-cell34.FLNC.default.foldchange_cdf.nolegend.svg",
+        d="results/paper/expression_pmf/140genesData.1.cell34.PRKCA.default.expression_pmf.nolegend.svg",
+        e="results/paper/expression_pmf/140genesData.1.cell0.PRKCA.default.expression_pmf.nolegend.svg",
+        f="results/paper/foldchange_cdf/140genesData.1.cell0-vs-cell34.PRKCA.default.foldchange_cdf.legend.svg"
     output:
         "figures/fig_example_{gene}.svg"
     run:
-        import svgutils.transform as sg
         fig = sg.SVGFigure("6.4in", "1.8in")
-        a = sg.fromfile(input.a).getroot()
-        b = sg.fromfile(input.b).getroot()
-        c = sg.fromfile(input.c).getroot()
-        b.moveto(200, 0)
-        c.moveto(390, 0)
+        a = load_svg(input.a)
+        b = load_svg(input.b)
+        c = load_svg(input.c)
+        d = load_svg(input.d)
+        e = load_svg(input.e)
+        f = load_svg(input.f)
+        b.moveto(190, 0)
+        c.moveto(380, 0)
+        d.moveto(0, 160)
+        e.moveto(190, 160)
+        f.moveto(380, 160)
 
-        la = sg.TextElement(0,10, "a", size=12, weight="bold")
-        lb = sg.TextElement(200,10, "b", size=12, weight="bold")
-        lc = sg.TextElement(390,10, "c", size=12, weight="bold")
+        la = label_plot(0,10, "a")
+        lb = label_plot(190,10, "b")
+        lc = label_plot(380,10, "c")
+        ld = label_plot(0,170, "c")
+        le = label_plot(190,170, "c")
+        lf = label_plot(380,170, "c")
 
         fig.append([a, b, c, la, lb, lc])
         fig.save(output[0])
@@ -407,18 +447,18 @@ rule figure_simulation:
     run:
         import svgutils.transform as sg
         fig = sg.SVGFigure("4.6in", "3.6in")
-        a = sg.fromfile(input.a).getroot()
-        b = sg.fromfile(input.b).getroot()
-        c = sg.fromfile(input.c).getroot()
-        d = sg.fromfile(input.d).getroot()
+        a = load_svg(input.a)
+        b = load_svg(input.b)
+        c = load_svg(input.c)
+        d = load_svg(input.d)
         b.moveto(250, 0)
         c.moveto(0, 160)
         d.moveto(250, 160)
 
-        la = sg.TextElement(0,10, "a", size=12, weight="bold")
-        lb = sg.TextElement(250,10, "b", size=12, weight="bold")
-        lc = sg.TextElement(0,170, "c", size=12, weight="bold")
-        ld = sg.TextElement(250,170, "d", size=12, weight="bold")
+        la = label_plot(0,10, "a")
+        lb = label_plot(250,10, "b")
+        lc = label_plot(0,170, "c")
+        ld = label_plot(250,170, "d")
 
         fig.append([a, b, c, d, la, lb, lc, ld])
         fig.save(output[0])
@@ -435,18 +475,18 @@ rule figure_clustering:
     run:
         import svgutils.transform as sg
         fig = sg.SVGFigure("23.8cm", "5.3cm")
-        a = sg.fromfile(input.a).getroot()
-        b = sg.fromfile(input.b).getroot()
-        c = sg.fromfile(input.c).getroot()
-        d = sg.fromfile(input.d).getroot()
+        a = load_svg(input.a)
+        b = load_svg(input.b)
+        c = load_svg(input.c)
+        d = load_svg(input.d)
         b.moveto(258, 0)
         c.moveto(453, 0)
         d.moveto(650, 0)
 
-        la = sg.TextElement(0,10, "a", size=12, weight="bold")
-        lb = sg.TextElement(258,10, "b", size=12, weight="bold")
-        lc = sg.TextElement(453,10, "c", size=12, weight="bold")
-        ld = sg.TextElement(650,10, "d", size=12, weight="bold")
+        la = label_plot(0,10, "a")
+        lb = label_plot(258,10, "b")
+        lc = label_plot(453,10, "c")
+        ld = label_plot(650,10, "d")
 
         fig.append([a, b, c, d, la, lb, lc, ld])
         fig.save(output[0])
@@ -458,7 +498,11 @@ rule figure_multidiffexp:
     output:
         "figures/fig_{dataset}.multidiffexp.pdf"
     shell:
+        # nothing to be done here
         "cp {input} {output}"
+
+
+#### utils ####
 
 
 rule convert_svg:
@@ -468,12 +512,3 @@ rule convert_svg:
         "{prefix}.{fmt,(pdf|png)}"
     shell:
         "rsvg-convert -f {wildcards.fmt} {input} > {output}"
-
-
-rule fix_svg:
-    input:
-       "{prefix}.svg"
-    output:
-        "{prefix}.fixed.svg"
-    shell:
-        "rsvg-convert -f svg {input} > {output}"
