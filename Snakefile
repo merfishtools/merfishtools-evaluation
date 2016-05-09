@@ -1,6 +1,7 @@
 from itertools import combinations
 import pandas as pd
-sys.path.insert(0, "../")
+# TODO remove once packaged
+sys.path.insert(0, "../merfishtools")
 import merfishtools as mt
 import svgutils.transform as sg
 
@@ -14,7 +15,8 @@ at http://zhuang.harvard.edu/merfish.
 configfile: "config.yaml"
 
 
-merfishtools = "../target/release/merfishtools"
+# TODO remove once packaged
+merfishtools = "../merfishtools/target/release/merfishtools"
 #merfishtools = "merfishtools"
 
 
@@ -348,7 +350,8 @@ rule plot_simulation:
         known_counts=expand("data/simulated.{mean}.known.txt", mean=means)
     output:
         violin="results/{context}/simulation-MHD{dist}/MHD{dist}.error.{settings}.svg",
-        scatter="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter.{settings}.svg"
+        scatter_raw="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter-raw.{settings}.svg"
+        scatter_posterior="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter-posterior.{settings}.svg"
     params:
         means=means
     script:
@@ -438,10 +441,12 @@ rule figure_example:
 
 rule figure_simulation:
     input:
-        b="results/paper/simulation-MHD4/MHD4.scatter.default.svg",
-        d="results/paper/simulation-MHD2/MHD2.scatter.default.svg",
+        d="results/paper/simulation-MHD4/MHD4.scatter-raw.default.svg",
+        f="results/paper/simulation-MHD2/MHD2.scatter-raw.default.svg",
+        c="results/paper/simulation-MHD4/MHD4.scatter-posterior.default.svg",
+        e="results/paper/simulation-MHD2/MHD2.scatter-posterior.default.svg",
         a="results/paper/simulation-MHD4/MHD4.error.default.svg",
-        c="results/paper/simulation-MHD2/MHD2.error.default.svg"
+        b="results/paper/simulation-MHD2/MHD2.error.default.svg"
     output:
         "figures/fig_simulation.svg"
     run:
@@ -451,9 +456,13 @@ rule figure_simulation:
         b = load_svg(input.b)
         c = load_svg(input.c)
         d = load_svg(input.d)
+        e = load_svg(input.e)
+        f = load_svg(input.f)
         b.moveto(250, 0)
         c.moveto(0, 160)
-        d.moveto(250, 160)
+        d.moveto(190, 160)
+        d.moveto(380, 160)
+        d.moveto(570, 160)
 
         la = label_plot(0,10, "a")
         lb = label_plot(250,10, "b")

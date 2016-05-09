@@ -9,9 +9,6 @@ epsilon = 0.001
 
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
 
-plt.figure(figsize=snakemake.config["plots"]["figsize"])
-plt.subplot(111, aspect="equal")
-
 errors = []
 counts = []
 for i, (mean, posterior_counts, raw_counts, known_counts) in enumerate(zip(
@@ -51,20 +48,26 @@ for i, (mean, posterior_counts, raw_counts, known_counts) in enumerate(zip(
     errors.append(pd.DataFrame({"error": posterior_counts - known_counts["count"], "mean": mean, "type": "posterior"}))
 
 counts = pd.concat(counts)
-plt.scatter(counts["known"], counts["raw"], s=1, c="k", alpha=0.3, rasterized=True, edgecolors="face", marker="o")
-plt.scatter(counts["known"], counts["posterior"], s=1, c="r", alpha=0.3, rasterized=True, edgecolors="face", marker="o")
 
-maxv = max(plt.xlim()[1], plt.ylim()[1])
+def plot_hexbin(type, path, cmap):
+    plt.figure(figsize=snakemake.config["plots"]["figsize"])
+    plt.subplot(111, aspect="equal")
+    #plt.scatter(counts["known"], counts[type], s=1, c="k", alpha=0.3, rasterized=True, edgecolors="face", marker="o")
+    plt.hexbin(counts["known"], counts[type], cmap=cmap, bins=50)
 
+    maxv = max(plt.xlim()[1], plt.ylim()[1])
 
-plt.plot([0, maxv], [0, maxv], "--k")
-plt.xlim((0, maxv))
-plt.ylim((0,maxv))
-plt.ylabel("predicted")
-plt.xlabel("truth")
-plt.legend(loc="upper left")
-sns.despine()
-plt.savefig(snakemake.output.scatter, bbox_inches="tight")
+    plt.plot([0, maxv], [0, maxv], "--k")
+    plt.xlim((0, maxv))
+    plt.ylim((0,maxv))
+    plt.ylabel("predicted")
+    plt.xlabel("truth")
+    plt.legend(loc="upper left")
+    sns.despine()
+    plt.savefig(path, bbox_inches="tight")
+
+plot_hexbin("raw", snakemake.output.scatter_raw, "Greys")
+plot_hexbin("posterior", snakemake.output.scatter_posterior, "Reds")
 
 errors = pd.concat(errors)
 s = (errors["type"] == "posterior") & (errors["mean"] == 5)
