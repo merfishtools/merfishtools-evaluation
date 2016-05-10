@@ -41,9 +41,9 @@ rule all:
         "figures/fig_example.pdf",
         "figures/fig_simulation.pdf",
         expand("figures/fig_{dataset}.{type}.clustering.pdf", dataset=datasets, type=types),
-        expand("figures/fig_{dataset}.multidiffexp.pdf", dataset=datasets),
+        expand(["figures/fig_{dataset}.multidiffexp.pdf", "results/paper/{dataset}.default.go_enrichment.txt"], dataset=datasets),
         expand("results/{context}/{dataset}.{type}.default.qqplot.pdf", context="paper", dataset=datasets, type=types),
-        "figures/model.pdf", "figures/sketch.pdf"
+        "figures/model.pdf", "figures/sketch.pdf",
 
 
 #### handling raw data ####

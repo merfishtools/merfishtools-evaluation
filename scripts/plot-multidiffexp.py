@@ -9,7 +9,7 @@ from mpl_toolkits.axes_grid.inset_locator import inset_axes
 import merfishtools
 
 sns.set(style="ticks", context=snakemake.wildcards.context)
-sns.set_palette("Dark2", n_colors=7)
+sns.set_palette("Paired", n_colors=7)
 
 fig_x, fig_y = snakemake.config["plots"]["figsize"]
 figsize = (fig_x * 4, fig_y * 4)
