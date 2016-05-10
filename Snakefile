@@ -463,9 +463,9 @@ rule figure_simulation:
         f.moveto(380, 160)
 
         la = label_plot(5, 10, "a")
-        lb = label_plot(265, 10, "b")
-        lc = label_plot(5, 170, "c")
-        ld = label_plot(130, 170, "d")
+        lb = label_plot(265, 10, "d")
+        lc = label_plot(5, 170, "b")
+        ld = label_plot(130, 170, "c")
         le = label_plot(255, 170, "e")
         lf = label_plot(385, 170, "f")
 
