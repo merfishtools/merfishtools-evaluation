@@ -407,13 +407,13 @@ rule figure_example:
         a="results/paper/expression_pmf/140genesData.1.cell34.FLNC.default.expression_pmf.nolegend.svg",
         b="results/paper/expression_pmf/140genesData.1.cell0.FLNC.default.expression_pmf.nolegend.svg",
         c="results/paper/foldchange_cdf/140genesData.1.cell0-vs-cell34.FLNC.default.foldchange_cdf.nolegend.svg",
-        d="results/paper/expression_pmf/140genesData.1.cell34.PRKCA.default.expression_pmf.nolegend.svg",
+        d="results/paper/expression_pmf/140genesData.1.cell34.PRKCA.default.expression_pmf.legend.svg",
         e="results/paper/expression_pmf/140genesData.1.cell0.PRKCA.default.expression_pmf.nolegend.svg",
-        f="results/paper/foldchange_cdf/140genesData.1.cell0-vs-cell34.PRKCA.default.foldchange_cdf.legend.svg"
+        f="results/paper/foldchange_cdf/140genesData.1.cell0-vs-cell34.PRKCA.default.foldchange_cdf.nolegend.svg"
     output:
         "figures/fig_example.svg"
     run:
-        fig = sg.SVGFigure("7.2in", "4in")
+        fig = sg.SVGFigure("6.4in", "3.6in")
         a = load_svg(input.a)
         b = load_svg(input.b)
         c = load_svg(input.c)
@@ -426,12 +426,12 @@ rule figure_example:
         e.moveto(190, 160)
         f.moveto(380, 160)
 
-        la = label_plot(0,10, "a")
-        lb = label_plot(190,10, "b")
-        lc = label_plot(380,10, "c")
-        ld = label_plot(0,170, "c")
-        le = label_plot(190,170, "c")
-        lf = label_plot(380,170, "c")
+        la = label_plot(5,10, "a")
+        lb = label_plot(195,10, "b")
+        lc = label_plot(385,10, "c")
+        ld = label_plot(5,170, "d")
+        le = label_plot(195,170, "e")
+        lf = label_plot(385,170, "f")
 
         fig.append([a, b, c, d, e, f, la, lb, lc, ld, le, lf])
         fig.save(output[0])
@@ -483,19 +483,19 @@ rule figure_clustering:
         "figures/fig_{dataset}.{type}.clustering.svg"
     run:
         import svgutils.transform as sg
-        fig = sg.SVGFigure("23.8cm", "5.3cm")
+        fig = sg.SVGFigure("4.6in", "1.1in")
         a = load_svg(input.a)
         b = load_svg(input.b)
         c = load_svg(input.c)
         d = load_svg(input.d)
-        b.moveto(258, 0)
-        c.moveto(453, 0)
-        d.moveto(650, 0)
+        b.moveto(160, 0)
+        c.moveto(244, 0)
+        d.moveto(328, 0)
 
-        la = label_plot(0,10, "a")
-        lb = label_plot(258,10, "b")
-        lc = label_plot(453,10, "c")
-        ld = label_plot(650,10, "d")
+        la = label_plot(5,10, "a")
+        lb = label_plot(165,10, "b")
+        lc = label_plot(249,10, "c")
+        ld = label_plot(333,10, "d")
 
         fig.append([a, b, c, d, la, lb, lc, ld])
         fig.save(output[0])
