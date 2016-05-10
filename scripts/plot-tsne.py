@@ -33,7 +33,7 @@ embedding.index = exprs.index
 # plot
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
 width, height = snakemake.config["plots"]["figsize"]
-fig = plt.figure(figsize=snakemake.config["plots"]["figsize"])
+fig = plt.figure(figsize=0.75 * snakemake.config["plots"]["figsize"])
 plt.subplot(111, aspect="equal")
 
 for expmnt, codebook in zip(experiments, snakemake.params.codebooks):

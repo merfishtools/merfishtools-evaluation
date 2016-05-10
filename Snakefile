@@ -1,4 +1,5 @@
 from itertools import combinations
+import numpy as np
 import pandas as pd
 import merfishtools as mt
 import svgutils.transform as sg
@@ -11,8 +12,10 @@ at http://zhuang.harvard.edu/merfish.
 
 
 configfile: "config.yaml"
+config["plots"]["figsize"] = np.array(config["plots"]["figsize"])
 
 merfishtools = "merfishtools"
+merfishtools = "../merfishtools/target/release/merfishtools"
 
 
 contexts = ["paper"]
@@ -410,7 +413,7 @@ rule figure_example:
     output:
         "figures/fig_example.svg"
     run:
-        fig = sg.SVGFigure("6.4in", "1.8in")
+        fig = sg.SVGFigure("7.2in", "4in")
         a = load_svg(input.a)
         b = load_svg(input.b)
         c = load_svg(input.c)
@@ -430,7 +433,7 @@ rule figure_example:
         le = label_plot(190,170, "c")
         lf = label_plot(380,170, "c")
 
-        fig.append([a, b, c, la, lb, lc])
+        fig.append([a, b, c, d, e, f, la, lb, lc, ld, le, lf])
         fig.save(output[0])
 
 
@@ -446,25 +449,27 @@ rule figure_simulation:
         "figures/fig_simulation.svg"
     run:
         import svgutils.transform as sg
-        fig = sg.SVGFigure("4.6in", "3.6in")
+        fig = sg.SVGFigure("5.8in", "3.3in")
         a = load_svg(input.a)
         b = load_svg(input.b)
         c = load_svg(input.c)
         d = load_svg(input.d)
         e = load_svg(input.e)
         f = load_svg(input.f)
-        b.moveto(250, 0)
+        b.moveto(260, 0)
         c.moveto(0, 160)
-        d.moveto(190, 160)
-        d.moveto(380, 160)
-        d.moveto(570, 160)
+        d.moveto(125, 160)
+        e.moveto(250, 160)
+        f.moveto(380, 160)
 
-        la = label_plot(0,10, "a")
-        lb = label_plot(250,10, "b")
-        lc = label_plot(0,170, "c")
-        ld = label_plot(250,170, "d")
+        la = label_plot(5, 10, "a")
+        lb = label_plot(265, 10, "b")
+        lc = label_plot(5, 170, "c")
+        ld = label_plot(130, 170, "d")
+        le = label_plot(255, 170, "e")
+        lf = label_plot(385, 170, "f")
 
-        fig.append([a, b, c, d, la, lb, lc, ld])
+        fig.append([a, b, c, d, e, f, la, lb, lc, ld, le, lf])
         fig.save(output[0])
 
 
