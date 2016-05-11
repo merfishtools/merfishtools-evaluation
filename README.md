@@ -1,4 +1,4 @@
-# Evaluation of merfishtools
+# Evaluation of MERFISHtools
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥3.6.1-brightgreen.svg?style=flat-square)](http://snakemake.bitbucket.org)
 
