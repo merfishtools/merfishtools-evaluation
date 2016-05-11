@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
-mpl.use("agg")
+mpl.use("svg")
 import matplotlib.pyplot as plt
 import seaborn as sns
+from seaborn.palettes import blend_palette
+from seaborn.utils import set_hls_values
 
 epsilon = 0.001
 
@@ -48,12 +50,17 @@ for i, (mean, posterior_counts, raw_counts, known_counts) in enumerate(zip(
     errors.append(pd.DataFrame({"error": posterior_counts - known_counts["count"], "mean": mean, "type": "posterior"}))
 
 counts = pd.concat(counts)
+print(counts.describe())
 
-def plot_hexbin(type, path, cmap):
-    plt.figure(figsize=snakemake.config["plots"]["figsize"])
+def plot_hexbin(type, path, color):
+    color_rgb = mpl.colors.colorConverter.to_rgb(color)
+    colors = [set_hls_values(color_rgb, l=l) for l in np.linspace(1, 0, 12)]
+    cmap = blend_palette(colors, as_cmap=True)
+
+    plt.figure(figsize=0.75 * snakemake.config["plots"]["figsize"])
     plt.subplot(111, aspect="equal")
     #plt.scatter(counts["known"], counts[type], s=1, c="k", alpha=0.3, rasterized=True, edgecolors="face", marker="o")
-    plt.hexbin(counts["known"], counts[type], cmap=cmap, bins=50)
+    plt.hexbin(counts["known"], counts[type], cmap=cmap, gridsize=25, clip_on=True)
 
     maxv = max(plt.xlim()[1], plt.ylim()[1])
 
@@ -62,20 +69,19 @@ def plot_hexbin(type, path, cmap):
     plt.ylim((0,maxv))
     plt.ylabel("predicted")
     plt.xlabel("truth")
-    plt.legend(loc="upper left")
     sns.despine()
     plt.savefig(path, bbox_inches="tight")
 
-plot_hexbin("raw", snakemake.output.scatter_raw, "Greys")
-plot_hexbin("posterior", snakemake.output.scatter_posterior, "Reds")
+colors = sns.xkcd_palette(["grey", "light red"])
+
+plot_hexbin("raw", snakemake.output.scatter_raw, colors[0])
+plot_hexbin("posterior", snakemake.output.scatter_posterior, colors[1])
 
 errors = pd.concat(errors)
 s = (errors["type"] == "posterior") & (errors["mean"] == 5)
-print(errors[s].describe())
 
 x, y = snakemake.config["plots"]["figsize"]
 plt.figure(figsize=(x * 1.5, y))
-colors = sns.xkcd_palette(["grey", "light red"])
 sns.violinplot(x="mean", y="error", hue="type", data=errors, bw=1, split=True, inner="quartile", linewidth=1, palette=colors)
 plt.plot(plt.xlim(), [0, 0], "-k", linewidth=1, zorder=-5)
 

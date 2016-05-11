@@ -46,7 +46,8 @@ plt.ylim(ylim)
 plt.xlabel("expression")
 plt.ylabel("PMF")
 if snakemake.wildcards.legend == "legend":
-    plt.legend(loc="upper left", bbox_to_anchor=(0.5, 1))
+    #plt.legend(loc="upper left", bbox_to_anchor=(0.5, 1))
+    plt.legend(loc="best")
 plt.xlim([0, plt.xlim()[1]])
 
 sns.despine()

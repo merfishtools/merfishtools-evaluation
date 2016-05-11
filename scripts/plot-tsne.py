@@ -33,7 +33,7 @@ embedding.index = exprs.index
 # plot
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
 width, height = snakemake.config["plots"]["figsize"]
-fig = plt.figure(figsize=snakemake.config["plots"]["figsize"])
+fig = plt.figure(figsize=0.75 * snakemake.config["plots"]["figsize"])
 plt.subplot(111, aspect="equal")
 
 for expmnt, codebook in zip(experiments, snakemake.params.codebooks):
@@ -43,7 +43,7 @@ embedding = pd.concat([embedding, cellprops], axis="columns")
 embedding.reset_index(inplace=True)
 
 if snakemake.wildcards.highlight == "expmnt":
-    colors = sns.color_palette("muted", len(experiments))
+    colors = sns.color_palette("Paired", len(experiments))
     highlight = [colors[e] for e in embedding["expmnt"]]
     cmap = None
 elif snakemake.wildcards.highlight == "codebook":
@@ -57,10 +57,14 @@ elif snakemake.wildcards.highlight == "cellsize":
 elif snakemake.wildcards.highlight == "cellpos":
     highlight = "pos"
     cmap = "viridis"
-ax = plt.scatter("x", "y", c=highlight, data=embedding, cmap=cmap, alpha=0.7, edgecolors="face")
+ax = plt.scatter("x", "y", c=highlight, s=5, data=embedding, cmap=cmap, alpha=0.7, edgecolors="face")
     
 
 plt.axis("off")
+from matplotlib.ticker import NullLocator
+plt.gca().xaxis.set_major_locator(NullLocator())
+plt.gca().yaxis.set_major_locator(NullLocator())
+
 if snakemake.wildcards.highlight == "cellsize":
     cb = plt.colorbar(ax)
     cb.set_label("cell size in nm²")
