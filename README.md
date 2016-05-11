@@ -57,3 +57,11 @@ For further possibilities, see
     snakemake --help
 
 and http://snakemake.bitbucket.org.
+
+# Author
+
+[Johannes Köster](http://johanneskoester.bitbucket.org)
+
+# License
+
+[MIT](LICENSE.md)
