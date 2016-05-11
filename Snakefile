@@ -19,7 +19,7 @@ merfishtools = "../merfishtools/target/release/merfishtools"
 
 
 contexts = ["paper"]
-datasets = ["140genesData"]
+datasets = ["140genesData", "1001genesData"]
 types = ["expressions", "normalized_expressions"]
 
 
