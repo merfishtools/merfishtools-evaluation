@@ -13,7 +13,7 @@ quantiles = np.linspace(0, 1, 100)
 
 exprs = [pd.read_table(f, index_col=0) for f in snakemake.input]
 
-plt.figure(figsize=(20, 20))
+plt.figure(figsize=(15, 15))
 for (i, (a, a_name)), (j, (b, b_name)) in combinations(enumerate(zip(exprs, snakemake.params.experiments)), 2):
     plt.subplot2grid([len(exprs)] * 2, (i, j))
     q_a = a.unstack().quantile(quantiles)
