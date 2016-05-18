@@ -15,7 +15,6 @@ configfile: "config.yaml"
 config["plots"]["figsize"] = np.array(config["plots"]["figsize"])
 
 merfishtools = "merfishtools"
-merfishtools = "../merfishtools/target/release/merfishtools"
 
 
 contexts = ["paper"]
