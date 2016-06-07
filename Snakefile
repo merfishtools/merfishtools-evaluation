@@ -42,8 +42,8 @@ rule all:
         expand("figures/fig_{dataset}.{type}.clustering.pdf", dataset=datasets, type=types),
         "results/paper/140genesData.default.go_enrichment.pdf",
         expand(["figures/fig_{dataset}.multidiffexp.pdf",
-                "results/{dataset}.default.go_enrichment.terms.txt",
-                "results/paper/{dataset}.default.cv_raw_vs_posterior.pdf"], dataset=datasets),
+                "figures/fig_cv_raw_vs_posterior.pdf",
+                "results/{dataset}.default.go_enrichment.terms.txt"], dataset=datasets),
         expand("results/{context}/{dataset}.{type}.default.qqplot.pdf", context="paper", dataset=datasets, type=types),
         "figures/model.pdf", "figures/sketch.pdf",
 
@@ -510,6 +510,25 @@ rule figure_multidiffexp:
     shell:
         # nothing to be done here
         "cp {input} {output}"
+
+
+rule figure_cv_raw_vs_posterior:
+    input:
+        expand("results/paper/{dataset}.default.cv_raw_vs_posterior.svg", dataset=datasets)
+    output:
+        "figures/fig_cv_raw_vs_posterior.svg"
+    run:
+        import svgutils.transform as sg
+        fig = sg.SVGFigure("3.8in", "1.9in")
+        a = load_svg(input[0])
+        b = load_svg(input[1])
+        b.moveto(160, 0)
+
+        la = label_plot(5,10, "a")
+        lb = label_plot(165,10, "b")
+
+        fig.append([a, b, la, lb])
+        fig.save(output[0])
 
 
 #### utils ####
