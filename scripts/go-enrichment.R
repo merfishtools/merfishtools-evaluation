@@ -47,6 +47,7 @@ if(nrow(foreground) > 0) {
     genes$gene <- ids[genes$entrezid, "hgnc_symbol"]
     genes$entrezid <- NULL
     genes$cv <- est[genes$gene, "cv_ev"]
+    genes$fdr <- est[genes$gene, "diff_fdr"]
 
     write.table(genes, file = snakemake@output[["genes"]], row.names = FALSE, quote = FALSE, sep = "\t")
 } else {
