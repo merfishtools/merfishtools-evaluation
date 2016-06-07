@@ -241,6 +241,16 @@ rule simulate:
 #### plots ####
 
 
+rule plot_cv_raw_vs_posterior:
+    input:
+        raw_counts=lambda wildcards: expand("counts/{dataset}.{expmnt}.all.txt", dataset=wildcards.dataset, expmnt=experiments(wildcards.dataset)),
+        diffexp="multidiffexp/{dataset}.{settings}.est.txt"
+    output:
+        "results/{context}/{dataset}.{settings}.cv_raw_vs_posterior.svg"
+    script:
+        "scripts/plot-cv-raw-vs-posterior.py"
+
+
 rule plot_enrichment:
     input:
         terms="results/{dataset}.{settings}.go_enrichment.terms.txt",
