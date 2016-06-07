@@ -1,27 +1,31 @@
 import matplotlib
 matplotlib.use("agg")
 import matplotlib.pyplot as plt
-import seaborn as sns
+
+import networkx as nx
+from networkx.algorithms import bipartite
 import pandas as pd
 
-sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
-figsize = snakemake.config["plots"]["figsize"]
-figsize[0] *= 3
-plt.figure(figsize=figsize)
+terms = pd.read_table(snakemake.input.terms, index_col=0)
+genes = pd.read_table(snakemake.input.genes)
+genes.index = genes["goterm"]
 
-enrichment = pd.read_table(snakemake.input[0])
-enrichment = enrichment[enrichment["adjPvalue"] <= 0.05]
+terms = terms[terms["adjPvalue"] <= 0.05]
+G = nx.DiGraph()
+for goterm in terms.index:
+    for _, (goterm, gene, cv) in genes.loc[goterm].iterrows():
+        G.add_node(goterm, bipartite=0)
+        G.add_node(gene, cv=cv, bipartite=1)
+        G.add_edge(gene, goterm)
 
-pos = enrichment.index + 0.5
+genes = genes.loc[terms.index]
 
-pal = sns.color_palette("Dark2")
+pos = dict()
+pos.update((n, (1, i)) for i, n in enumerate(genes["gene"].unique()))
+pos.update((n, (2, i)) for i, n in enumerate(genes["goterm"].unique()))
 
-plt.barh(pos, enrichment["ExpCount"], align="center", label="expected count", linewidth=0, color=pal[0])
-plt.barh(pos, enrichment["Count"], left=enrichment["ExpCount"], align="center", label="observed count", linewidth=0, color=pal[1])
-plt.barh(pos, enrichment["Size"], left=enrichment["Count"], align="center", label="term size", linewidth=0, color=pal[2])
-plt.yticks(pos, enrichment["Term"])
-plt.legend(loc="best")
-
-sns.despine(left=True)
-plt.gca().yaxis.set_ticks_position("none")
+plt.figure(figsize=(4,4))
+ax = nx.draw_networkx(G, pos, arrows=False, cmap=plt.cm.viridis)
+plt.colorbar(ax)
+plt.axis('off')
 plt.savefig(snakemake.output[0], bbox_inches="tight")

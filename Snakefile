@@ -41,7 +41,7 @@ rule all:
         "figures/fig_example.pdf",
         "figures/fig_simulation.pdf",
         expand("figures/fig_{dataset}.{type}.clustering.pdf", dataset=datasets, type=types),
-        expand(["figures/fig_{dataset}.multidiffexp.pdf", "results/paper/{dataset}.default.go_enrichment.txt"], dataset=datasets),
+        expand(["figures/fig_{dataset}.multidiffexp.pdf", "results/{dataset}.default.go_enrichment.terms.txt", "results/paper/{dataset}.default.go_enrichment.pdf"], dataset=datasets),
         expand("results/{context}/{dataset}.{type}.default.qqplot.pdf", context="paper", dataset=datasets, type=types),
         "figures/model.pdf", "figures/sketch.pdf",
 
@@ -214,7 +214,8 @@ rule enrichment:
     input:
         "multidiffexp/{dataset}.{settings}.est.txt"
     output:
-        table="results/paper/{dataset}.{settings}.go_enrichment.txt"
+        terms="results/{dataset}.{settings}.go_enrichment.terms.txt",
+        genes="results/{dataset}.{settings}.go_enrichment.genes.txt"
     script:
         "scripts/go-enrichment.R"
 
@@ -241,6 +242,17 @@ rule simulate:
 #### plots ####
 
 
+rule plot_enrichment:
+    input:
+        terms="results/{dataset}.{settings}.go_enrichment.terms.txt",
+        genes="results/{dataset}.{settings}.go_enrichment.genes.txt"
+    output:
+        "results/{context}/{dataset}.{settings}.go_enrichment.pdf"
+    script:
+        "scripts/plot-go-enrichment.py"
+
+
+
 rule plot_multidiffexp:
     input:
        diffexp="multidiffexp/{dataset}.{settings}.est.txt",
@@ -253,14 +265,6 @@ rule plot_multidiffexp:
     script:
        "scripts/plot-multidiffexp.py"
 
-
-rule plot_enrichment:
-    input:
-        "results/paper/{dataset}.{settings}.go_enrichment.txt"
-    output:
-        "results/{context}/{dataset}.{settings}.go_enrichment.svg"
-    script:
-        "scripts/plot-go-enrichment.py"
 
 
 rule plot_expression_pmf:
@@ -378,21 +382,6 @@ rule plot_dataset_correlation:
         "results/{context}/{settings}.dataset_correlation.svg"
     script:
         "scripts/plot-dataset-correlation.py"
-
-
-comparisons = list(combinations(experiments("140genesData"), 2))
-
-
-rule plot_go_term_enrichment:
-    input:
-        expand("diffexp/140genesData.{experiment[0]}.all-vs-{experiment[1]}.all.default.est.txt",
-               experiment=comparisons)
-    output:
-        "results/{context}/comparisons/140genesData.comparisons.svg",
-    params:
-        comparisons=comparisons
-    script:
-        "scripts/experiment-diffexp.py"
 
 
 #### figures ####

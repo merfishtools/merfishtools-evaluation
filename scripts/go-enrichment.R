@@ -5,6 +5,7 @@ library("org.Hs.eg.db")
 library("mutoss")
 
 est <- read.table(snakemake@input[[1]], header = TRUE, stringsAsFactors = FALSE)
+rownames(est) <- est$feat
 
 # translate gene names to entrez ids
 ensembl = useMart("ensembl",dataset="hsapiens_gene_ensembl")
@@ -35,7 +36,20 @@ if(nrow(foreground) > 0) {
     by <- BY(goterms$Pvalue, 0.05)
     goterms$adjPvalue <- by[["adjPValues"]]
 
-    write.table(goterms, file = snakemake@output[["table"]], row.names = FALSE, quote = FALSE, sep = "\t")
+    write.table(goterms, file = snakemake@output[["terms"]], row.names = FALSE, quote = FALSE, sep = "\t")
+
+    # associate genes with go terms
+    ids <- ids[!is.na(ids$entrezgene), ]
+    rownames(ids) <- ids$entrezgene
+    genes <- stack(geneIdUniverse(results))
+    colnames(genes) <- c("entrezid", "goterm")
+    genes <- genes[, c("goterm", "entrezid")]
+    genes$gene <- ids[genes$entrezid, "hgnc_symbol"]
+    genes$entrezid <- NULL
+    genes$cv <- est[genes$gene, "cv_ev"]
+
+    write.table(genes, file = snakemake@output[["genes"]], row.names = FALSE, quote = FALSE, sep = "\t")
 } else {
-    file.create(snakemake@output[["table"]])
+    file.create(snakemake@output[["terms"]])
+    file.create(snakemake@output[["genes"]])
 }
