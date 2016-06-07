@@ -40,7 +40,10 @@ rule all:
         "figures/fig_example.pdf",
         "figures/fig_simulation.pdf",
         expand("figures/fig_{dataset}.{type}.clustering.pdf", dataset=datasets, type=types),
-        expand(["figures/fig_{dataset}.multidiffexp.pdf", "results/{dataset}.default.go_enrichment.terms.txt", "results/paper/{dataset}.default.go_enrichment.pdf"], dataset=datasets),
+        "results/paper/140genesData.default.go_enrichment.pdf",
+        expand(["figures/fig_{dataset}.multidiffexp.pdf",
+                "results/{dataset}.default.go_enrichment.terms.txt",
+                "results/paper/{dataset}.default.cv_raw_vs_posterior.pdf"], dataset=datasets),
         expand("results/{context}/{dataset}.{type}.default.qqplot.pdf", context="paper", dataset=datasets, type=types),
         "figures/model.pdf", "figures/sketch.pdf",
 
