@@ -540,7 +540,7 @@ rule figure_model:
         "figures/fig_model.svg"
     run:
         import svgutils.transform as sg
-        fig = sg.SVGFigure("7.6in", "3.2in")
+        fig = sg.SVGFigure("7.7in", "3.2in")
         a = load_svg(input[0])
         b = load_svg(input[1])
         c = load_svg(input[2])
