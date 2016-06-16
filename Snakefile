@@ -45,7 +45,7 @@ rule all:
                 "figures/fig_cv_raw_vs_posterior.pdf",
                 "results/{dataset}.default.go_enrichment.terms.txt"], dataset=datasets),
         expand("results/{context}/{dataset}.{type}.default.qqplot.pdf", context="paper", dataset=datasets, type=types),
-        "figures/model.pdf", "figures/sketch.pdf",
+        "figures/fig_model.pdf"
 
 
 #### handling raw data ####
@@ -528,6 +528,32 @@ rule figure_cv_raw_vs_posterior:
         lb = label_plot(165,10, "b")
 
         fig.append([a, b, la, lb])
+        fig.save(output[0])
+
+
+rule figure_model:
+    input:
+        "figures/sketch-small.svg",
+        "figures/urn-model.svg",
+        "figures/model.svg"
+    output:
+        "figures/fig_model.svg"
+    run:
+        import svgutils.transform as sg
+        fig = sg.SVGFigure("7.6in", "3.2in")
+        a = load_svg(input[0])
+        b = load_svg(input[1])
+        c = load_svg(input[2])
+        a.moveto(10, 10, scale=0.6)
+        b.moveto(40, 130, scale=0.6)
+        c.moveto(230, 10, scale=0.8)
+
+
+        la = label_plot(5, 10, "a")
+        lb = label_plot(5, 130, "b")
+        lc = label_plot(215, 10, "c")
+
+        fig.append([a, b, c, la, lb, lc])
         fig.save(output[0])
 
 
