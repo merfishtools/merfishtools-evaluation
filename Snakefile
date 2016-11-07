@@ -111,7 +111,7 @@ rule expressions:
         "bench/exp/{dataset}.{settings}.txt"
     threads: 8
     shell:
-        "{merfishtools} exp --codebook {input.codebook} --hamming-dist {params.dist} -N {params.bits} "
+        "{merfishtools} exp {input.codebook} --hamming-dist {params.dist} -N {params.bits} "
         "--estimate {output.est} -t {threads} < {input.data} > {output.pmf}"
 
 
