@@ -21,4 +21,5 @@ dependencies:
   - snakemake=3.7.0
   - statsmodels=0.6.1
   - svgutils=0.1.0
-
+  - r-mutoss=0.1
+  - networkx=1.11
