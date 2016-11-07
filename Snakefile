@@ -111,7 +111,7 @@ rule expressions:
         "bench/exp/{dataset}.{settings}.txt"
     threads: 8
     shell:
-        "{merfishtools} exp {input.codebook} --hamming-dist {params.dist} -N {params.bits} "
+        "{merfishtools} exp {input.codebook} --dist {params.dist} -N {params.bits} "
         "--estimate {output.est} -t {threads} < {input.data} > {output.pmf}"
 
 
@@ -207,7 +207,7 @@ rule multidiffexp:
         "bench/multidiffexp/{dataset}.{settings}.txt"
     threads: 24
     shell:
-        "{merfishtools} --debug multidiffexp --pseudocounts 1 "
+        "{merfishtools} multidiffexp --pseudocounts 1 "
         "-t {threads} --max-null-cv 0.5 "
         "--pmf {output.pmf} {input} > {output.est}"
 
@@ -566,4 +566,4 @@ rule convert_svg:
     output:
         "{prefix}.{fmt,(pdf|png)}"
     shell:
-        "rsvg-convert -f {wildcards.fmt} {input} > {output}"
+        "cairosvg -f {wildcards.fmt} {input} -o {output}"
