@@ -56,6 +56,8 @@ rule format:
         "data/{dataset}.csv.bz2"
     output:
         "data/{dataset}.{experiment}.{group}.txt"
+    conda:
+        "envs/environment.yml"
     script:
         "scripts/format-dataset.py"
 
@@ -140,9 +142,10 @@ rule expressions:
         "bench/exp/{dataset}.{settings}.txt"
     threads: 8
     shell:
-        "{merfishtools} exp --p0 {params.ds[err01]} --p1 {params.ds[err10]} "
-        "--codebook {input.codebook} --hamming-dist {params.ds[dist]} "
-        "-N {params.ds[N]} --estimate {output.est} -t {threads} "
+        "{merfishtools} exp {input.codebook} --p0 {params.ds[err01]} "
+        "--p1 {params.ds[err10]} --codebook {input.codebook} "
+        "--hamming-dist {params.ds[dist]} -N {params.ds[N]} "
+        "--estimate {output.est} -t {threads} "
         "< {input.data} > {output.pmf}"
 
 
@@ -209,14 +212,14 @@ rule diffexp:
     input:
         diffexp_input
     output:
-        pmf="diffexp/{dataset}.{experiment1}.{group1}-vs-{experiment2}.{group2}.{settings}.txt",
+        cdf="diffexp/{dataset}.{experiment1}.{group1}-vs-{experiment2}.{group2}.{settings}.txt",
         est="diffexp/{dataset}.{experiment1}.{group1}-vs-{experiment2}.{group2}.{settings}.est.txt"
     benchmark:
         "bench/diffexp/{dataset}.{experiment1}.{group1}-vs-{experiment2}.{group2}.{settings}.txt"
     threads: 8
     shell:
         "{merfishtools} diffexp -t {threads} --pseudocounts 1 "
-        "--max-null-log2fc 1.0 --pmf {output.pmf} {input} "
+        "--max-null-log2fc 1.0 --cdf {output.cdf} {input} "
         "> {output.est}"
 
 
@@ -232,15 +235,15 @@ rule multidiffexp:
     input:
         multidiffexp_input
     output:
-        pmf="multidiffexp/{dataset}.{settings}.txt",
+        cdf="multidiffexp/{dataset}.{settings}.txt",
         est="multidiffexp/{dataset}.{settings}.est.txt"
     benchmark:
         "bench/multidiffexp/{dataset}.{settings}.txt"
     threads: 24
     shell:
-        "{merfishtools} --debug multidiffexp --pseudocounts 1 "
+        "{merfishtools} multidiffexp --pseudocounts 1 "
         "-t {threads} --max-null-cv 0.5 "
-        "--pmf {output.pmf} {input} > {output.est}"
+        "--cdf {output.cdf} {input} > {output.est}"
 
 
 rule enrichment:
@@ -604,4 +607,4 @@ rule convert_svg:
     output:
         "{prefix}.{fmt,(pdf|png)}"
     shell:
-        "rsvg-convert -f {wildcards.fmt} {input} > {output}"
+        "cairosvg -f {wildcards.fmt} {input} -o {output}"
