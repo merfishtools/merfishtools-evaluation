@@ -9,18 +9,50 @@ datasets:
   140genesData:
     dist: 4
     N: 16
+    m: 4
+    err01: 0.04
+    err10: 0.1
+    has_corrected: true
     experiments: 7
   1001genesData:
     dist: 2
     N: 14
+    m: 4
+    err01: 0.04
+    err10: 0.1
+    has_corrected: false
     experiments: 3
   simulated-MHD4:
     dist: 4
     N: 16
+    m: 4
+    err01: 0.04
+    err10: 0.1
+    has_corrected: true
     experiments: 1
   simulated-MHD2:
     dist: 2
     N: 14
+    m: 4
+    err01: 0.04
+    err10: 0.1
+    has_corrected: false
+    experiments: 1
+  simulated-MHD4-8:
+    dist: 4
+    N: 16
+    m: 8
+    err01: 0.005
+    err10: 0.01
+    has_corrected: true
+    experiments: 1
+  simulated-MHD2-8:
+    dist: 2
+    N: 16
+    m: 8
+    err01: 0.005
+    err10: 0.01
+    has_corrected: false
     experiments: 1
 
 codebooks:
@@ -38,6 +70,8 @@ codebooks:
     3: codebook/1001genesData.txt
   simulated-MHD4: codebook/simulated-MHD4.txt
   simulated-MHD2: codebook/simulated-MHD2.txt
+  simulated-MHD4-8: codebook/simulated-MHD4-8.txt
+  simulated-MHD2-8: codebook/simulated-MHD2-8.txt
 
 settings:
   default: ""

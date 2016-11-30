@@ -60,6 +60,36 @@ rule format:
         "scripts/format-dataset.py"
 
 
+rule generate_mhd2_codebook:
+    input:
+        template="codebook/simulated-MHD2.txt"
+    output:
+        "codebook/{dataset}.txt"
+    wildcard_constraints:
+        dataset="simulated.+"
+    params:
+        ds=lambda wildcards: config[wildcards.dataset]
+    shell:
+        "cut -f1 {input.template} | merfishtools gen-mhd2 "
+        "-n {params.ds[N]} -m {params.ds[m]} "
+        "> {output}"
+
+
+rule generate_mhd4_codebook:
+    input:
+        template="codebook/simulated-MHD2.txt"
+    output:
+        "codebook/{dataset}.txt"
+    wildcard_constraints:
+        dataset="simulated.+"
+    params:
+        ds=lambda wildcards: config[wildcards.dataset]
+    shell:
+        "cut -f1 {input.template} | merfishtools gen-mhd4 "
+        "-m {params.ds[m]} "
+        "> {output}"
+
+
 rule cell_props:
     input:
         "data/{dataset}.{experiment}.all.txt"
@@ -105,14 +135,15 @@ rule expressions:
         pmf="expressions/{dataset}.{experiment,[0-9]+}.{group}.{settings}.txt",
         est="expressions/{dataset}.{experiment,[0-9]+}.{group}.{settings}.est.txt",
     params:
-        dist=lambda wildcards: config["datasets"][wildcards.dataset]["dist"],
-        bits=lambda wildcards: config["datasets"][wildcards.dataset]["N"]
+        ds=lambda wildcards: config["datasets"][wildcards.dataset],
     benchmark:
         "bench/exp/{dataset}.{settings}.txt"
     threads: 8
     shell:
-        "{merfishtools} exp --codebook {input.codebook} --hamming-dist {params.dist} -N {params.bits} "
-        "--estimate {output.est} -t {threads} < {input.data} > {output.pmf}"
+        "{merfishtools} exp --p0 {params.ds[err01]} --p1 {params.ds[err10]} "
+        "--codebook {input.codebook} --hamming-dist {params.ds[dist]} "
+        "-N {params.ds[N]} --estimate {output.est} -t {threads} "
+        "< {input.data} > {output.pmf}"
 
 
 rule expression_matrix:
@@ -225,20 +256,27 @@ rule enrichment:
 #### simulation ####
 
 
-rule simulate:
+rule simulate_counts:
     input:
         mhd4=config["codebooks"]["simulated-MHD4"],
         mhd2=config["codebooks"]["simulated-MHD2"]
     output:
-        sim_counts_mhd4="data/simulated-MHD4.{mean}.all.txt",
-        sim_counts_mhd2="data/simulated-MHD2.{mean}.all.txt",
-        known_counts="data/simulated.{mean}.known.txt",
-        stats_mhd4="data/simulated-MHD4.{mean}.stats.txt",
-        stats_mhd2="data/simulated-MHD2.{mean}.stats.txt"
-    params:
-        cell_count=100
+        "data/simulated.{mean}.known.txt",
     script:
         "scripts/simulate-counts.py"
+
+
+rule simulate:
+    input:
+        mhd4=lambda wildcards: config["codebooks"][wildcards.dataset]
+    output:
+        sim_counts="data/{dataset}.{mean}.all.txt",
+        stats="data/{dataset}.{mean}.stats.txt"
+    params:
+        cell_count=100,
+        ds=lambda wildcards: config["datasets"][wildcards.dataset]
+    script:
+        "scripts/simulate-dataset.py"
 
 
 #### plots ####
@@ -345,7 +383,7 @@ rule plot_tsne:
                                          settings=wildcards.settings),
         cellprops=lambda wildcards: expand("cell_properties/{dataset}.{experiment}.all.txt",
                                            dataset=wildcards.dataset,
-                                           experiment=experiments(wildcards.dataset)),
+                                           experiment=experiments(wildcards.dataset))
     output:
         "results/{context}/{dataset}.{type}.{settings}.{highlight,(expmnt|codebook|cellsize|cellpos)}.tsne.svg"
     params:
