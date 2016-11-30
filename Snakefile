@@ -1,10 +1,3 @@
-from itertools import combinations
-import numpy as np
-import pandas as pd
-import merfishtools as mt
-import svgutils.transform as sg
-
-
 """
 Analysis of MERFISHtools, using the data published
 at http://zhuang.harvard.edu/merfish.
@@ -12,10 +5,8 @@ at http://zhuang.harvard.edu/merfish.
 
 
 configfile: "config.yaml"
-config["plots"]["figsize"] = np.array(config["plots"]["figsize"])
 
 merfishtools = "merfishtools"
-
 
 contexts = ["paper"]
 datasets = ["140genesData", "1001genesData"]
@@ -57,7 +48,7 @@ rule format:
     output:
         "data/{dataset}.{experiment}.{group}.txt"
     conda:
-        "envs/environment.yml"
+        "envs/analysis.yml"
     script:
         "scripts/format-dataset.py"
 
@@ -71,6 +62,8 @@ rule generate_mhd2_codebook:
         dataset="simulated.+"
     params:
         ds=lambda wildcards: config[wildcards.dataset]
+    conda:
+        "envs/analysis.yml"
     shell:
         "cut -f1 {input.template} | merfishtools gen-mhd2 "
         "-n {params.ds[N]} -m {params.ds[m]} "
@@ -86,6 +79,8 @@ rule generate_mhd4_codebook:
         dataset="simulated.+"
     params:
         ds=lambda wildcards: config[wildcards.dataset]
+    conda:
+        "envs/analysis.yml"
     shell:
         "cut -f1 {input.template} | merfishtools gen-mhd4 "
         "-m {params.ds[m]} "
@@ -97,6 +92,8 @@ rule cell_props:
         "data/{dataset}.{experiment}.all.txt"
     output:
         "cell_properties/{dataset}.{experiment}.all.txt"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/cell-properties.py"
 
@@ -106,6 +103,8 @@ rule raw_counts:
         "data/{dataset}.{experiment}.{group}.txt"
     output:
         "counts/{dataset}.{experiment}.{group}.txt"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/raw-counts.py"
 
@@ -115,6 +114,8 @@ rule count_matrix:
         "counts/{dataset}.{experiment}.{group}.txt"
     output:
         "counts/{dataset}.{experiment}.{group}.matrix.txt"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/count-matrix.py"
 
@@ -140,6 +141,8 @@ rule expressions:
         ds=lambda wildcards: config["datasets"][wildcards.dataset],
     benchmark:
         "bench/exp/{dataset}.{settings}.txt"
+    conda:
+        "envs/analysis.yml"
     threads: 8
     shell:
         "{merfishtools} exp {input.codebook} --p0 {params.ds[err01]} "
@@ -154,6 +157,8 @@ rule expression_matrix:
         "expressions/{dataset}.{experiment}.{group}.{settings}.est.txt"
     output:
         "expressions/{dataset}.{experiment}.{group}.{settings}.matrix.txt"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/expression-matrix.py"
 
@@ -168,6 +173,8 @@ rule scale_factors:
         "normalized_expressions/{dataset}.{settings}.scale_factors.txt"
     params:
         experiments=lambda wildcards: experiments(wildcards.dataset)
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/normalize.py"
 
@@ -178,7 +185,10 @@ rule normalize_expression_matrix:
         scales="normalized_expressions/{dataset}.{settings}.scale_factors.txt"
     output:
         "normalized_expressions/{dataset}.{experiment}.{group}.{settings}.matrix.txt"
+    conda:
+        "envs/analysis.yml"
     run:
+        import pandas as pd
         expr = pd.read_table(input.expr, index_col=0)
         scales = pd.read_table(input.scales, index_col=0, squeeze=True, header=None)
         print(scales)
@@ -192,7 +202,10 @@ rule normalize_cdf:
         scales="normalized_expressions/{dataset}.{settings}.scale_factors.txt"
     output:
         "normalized_expressions/{dataset}.{experiment}.{group}.{settings,(default)}.txt"
+    conda:
+        "envs/analysis.yml"
     run:
+        import pandas as pd
         cdf = pd.read_table(input.cdf, index_col=0)
         scales = pd.read_table(input.scales, index_col=0, squeeze=True, header=None)
         cdf["expr"] *= scales[int(wildcards.experiment)]
@@ -216,6 +229,8 @@ rule diffexp:
         est="diffexp/{dataset}.{experiment1}.{group1}-vs-{experiment2}.{group2}.{settings}.est.txt"
     benchmark:
         "bench/diffexp/{dataset}.{experiment1}.{group1}-vs-{experiment2}.{group2}.{settings}.txt"
+    conda:
+        "envs/analysis.yml"
     threads: 8
     shell:
         "{merfishtools} diffexp -t {threads} --pseudocounts 1 "
@@ -239,6 +254,8 @@ rule multidiffexp:
         est="multidiffexp/{dataset}.{settings}.est.txt"
     benchmark:
         "bench/multidiffexp/{dataset}.{settings}.txt"
+    conda:
+        "envs/analysis.yml"
     threads: 24
     shell:
         "{merfishtools} multidiffexp --pseudocounts 1 "
@@ -252,6 +269,8 @@ rule enrichment:
     output:
         terms="results/{dataset}.{settings}.go_enrichment.terms.txt",
         genes="results/{dataset}.{settings}.go_enrichment.genes.txt"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/go-enrichment.R"
 
@@ -264,20 +283,24 @@ rule simulate_counts:
         mhd4=config["codebooks"]["simulated-MHD4"],
         mhd2=config["codebooks"]["simulated-MHD2"]
     output:
-        "data/simulated.{mean}.known.txt",
+        "data/simulated.{mean}.known.txt"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/simulate-counts.py"
 
 
 rule simulate:
     input:
-        mhd4=lambda wildcards: config["codebooks"][wildcards.dataset]
+        mhd4=lambda wildcards: config["codebooks"][wildcards.dataset]["codebook"]
     output:
         sim_counts="data/{dataset}.{mean}.all.txt",
         stats="data/{dataset}.{mean}.stats.txt"
     params:
         cell_count=100,
         ds=lambda wildcards: config["datasets"][wildcards.dataset]
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/simulate-dataset.py"
 
@@ -291,6 +314,8 @@ rule plot_cv_raw_vs_posterior:
         diffexp="multidiffexp/{dataset}.{settings}.est.txt"
     output:
         "results/{context}/{dataset}.{settings}.cv_raw_vs_posterior.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-cv-raw-vs-posterior.py"
 
@@ -301,6 +326,8 @@ rule plot_enrichment:
         genes="results/{dataset}.{settings}.go_enrichment.genes.txt"
     output:
         "results/{context}/{dataset}.{settings}.go_enrichment.pdf"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-go-enrichment.py"
 
@@ -315,6 +342,8 @@ rule plot_multidiffexp:
        "results/{context}/{dataset}.{settings}.diffexp.pdf"
     params:
        expmnts=lambda wildcards: experiments(wildcards.dataset)
+    conda:
+      "envs/analysis.yml"
     script:
        "scripts/plot-multidiffexp.py"
 
@@ -327,6 +356,8 @@ rule plot_expression_pmf:
         raw_counts="counts/{dataset}.{experiment}.{group}.txt"
     output:
         "results/{context}/expression_pmf/{dataset}.{experiment}.{group}.{gene}.{settings}.expression_pmf.{legend,(legend|nolegend)}.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-expression-pmf.py"
 
@@ -337,6 +368,8 @@ rule plot_foldchange_cdf:
         fc_est="diffexp/{dataset}.{experiment}.{group1}-vs-{experiment}.{group2}.{settings}.est.txt"
     output:
         "results/{context}/foldchange_cdf/{dataset}.{experiment}.{group1}-vs-{group2}.{gene}.{settings}.foldchange_cdf.{legend,(legend|nolegend)}.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-foldchange-cdf.py"
 
@@ -348,6 +381,8 @@ rule plot_qq:
         "results/{context}/{dataset}.{type}.{settings}.qqplot.svg"
     params:
         experiments=lambda wildcards: experiments(wildcards.dataset)
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-qq.py"
 
@@ -357,6 +392,8 @@ rule plot_expression_dist:
         lambda wildcards: matrices(wildcards.dataset, settings=wildcards.settings)
     output:
         "results/{context}/{dataset}.{settings}.expression_dist.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-expression-dist.py"
 
@@ -366,6 +403,8 @@ rule plot_overdispersion:
         lambda wildcards: matrices(wildcards.dataset, type="normalized_expressions", settings=wildcards.settings)
     output:
         "results/{context}/{dataset}.{settings}.overdispersion.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-overdispersion.py"
 
@@ -375,6 +414,8 @@ rule plot_correlation:
         lambda wildcards: matrices(wildcards.dataset, settings=wildcards.settings)
     output:
         "results/{context}/{dataset}.{settings}.correlation.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-correlation.py"
 
@@ -391,6 +432,8 @@ rule plot_tsne:
         "results/{context}/{dataset}.{type}.{settings}.{highlight,(expmnt|codebook|cellsize|cellpos)}.tsne.svg"
     params:
         codebooks=lambda wildcards: [config["codebooks"][wildcards.dataset][expmnt] for expmnt in experiments(wildcards.dataset)]
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-tsne.py"
 
@@ -409,6 +452,8 @@ rule plot_simulation:
         scatter_posterior="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter-posterior.{settings}.svg"
     params:
         means=means
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-simulation.py"
 
@@ -421,6 +466,8 @@ rule plot_simulation_pmf:
         "results/{context}/simulation-MHD{dist}/MHD{dist}.pmf.{settings}.svg"
     params:
         means=means
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-simulation-pmf.py"
 
@@ -433,6 +480,8 @@ rule plot_dataset_correlation:
         large_counts=matrices("1001genesData", type="counts")
     output:
         "results/{context}/{settings}.dataset_correlation.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-dataset-correlation.py"
 
@@ -454,7 +503,10 @@ rule figure_example:
         f="results/paper/foldchange_cdf/140genesData.1.cell0-vs-cell34.PRKCA.default.foldchange_cdf.nolegend.svg"
     output:
         "figures/fig_example.svg"
+    conda:
+        "envs/analysis.yml"
     run:
+        import svgutils.transform as sg
         fig = sg.SVGFigure("6.4in", "3.6in")
         a = load_svg(input.a)
         b = load_svg(input.b)
@@ -489,6 +541,8 @@ rule figure_simulation:
         b="results/paper/simulation-MHD2/MHD2.error.default.svg"
     output:
         "figures/fig_simulation.svg"
+    conda:
+        "envs/analysis.yml"
     run:
         import svgutils.transform as sg
         fig = sg.SVGFigure("5.8in", "3.3in")
@@ -523,6 +577,8 @@ rule figure_clustering:
         d="results/paper/{dataset}.{type}.default.expmnt.tsne.svg"
     output:
         "figures/fig_{dataset}.{type}.clustering.svg"
+    conda:
+        "envs/analysis.yml"
     run:
         import svgutils.transform as sg
         fig = sg.SVGFigure("4.6in", "1.1in")
@@ -543,11 +599,16 @@ rule figure_clustering:
         fig.save(output[0])
 
 
+ruleorder: figure_multidiffexp > convert_svg
+
+
 rule figure_multidiffexp:
     input:
         "results/paper/{dataset}.default.diffexp.pdf",
     output:
         "figures/fig_{dataset}.multidiffexp.pdf"
+    conda:
+        "envs/analysis.yml"
     shell:
         # nothing to be done here
         "cp {input} {output}"
@@ -558,6 +619,8 @@ rule figure_cv_raw_vs_posterior:
         expand("results/paper/{dataset}.default.cv_raw_vs_posterior.svg", dataset=datasets)
     output:
         "figures/fig_cv_raw_vs_posterior.svg"
+    conda:
+        "envs/analysis.yml"
     run:
         import svgutils.transform as sg
         fig = sg.SVGFigure("3.8in", "1.9in")
@@ -579,6 +642,8 @@ rule figure_model:
         "figures/model.svg"
     output:
         "figures/fig_model.svg"
+    conda:
+        "envs/analysis.yml"
     run:
         import svgutils.transform as sg
         fig = sg.SVGFigure("7.7in", "3.2in")
@@ -606,5 +671,7 @@ rule convert_svg:
         "{prefix}.svg"
     output:
         "{prefix}.{fmt,(pdf|png)}"
+    conda:
+        "envs/analysis.yml"
     shell:
         "cairosvg -f {wildcards.fmt} {input} -o {output}"
