@@ -82,7 +82,7 @@ rule generate_mhd4_codebook:
     conda:
         "envs/analysis.yml"
     shell:
-        "cut -f1 {input.template} | tail -n+2  | merfishtools gen-mhd4 "
+        "cut -f1 {input.template} | tail -n+2 | merfishtools gen-mhd4 "
         "-m {params.ds[m]} "
         "> {output}"
 
