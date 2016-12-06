@@ -33,7 +33,7 @@ embedding.index = exprs.index
 # plot
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
 width, height = snakemake.config["plots"]["figsize"]
-fig = plt.figure(figsize=0.75 * snakemake.config["plots"]["figsize"])
+fig = plt.figure(figsize=0.75 * np.array(snakemake.config["plots"]["figsize"]))
 plt.subplot(111, aspect="equal")
 
 for expmnt, codebook in zip(experiments, snakemake.params.codebooks):
@@ -58,7 +58,7 @@ elif snakemake.wildcards.highlight == "cellpos":
     highlight = "pos"
     cmap = "viridis"
 ax = plt.scatter("x", "y", c=highlight, s=5, data=embedding, cmap=cmap, alpha=0.7, edgecolors="face")
-    
+
 
 plt.axis("off")
 from matplotlib.ticker import NullLocator

@@ -12,7 +12,7 @@ codebook_mhd4 = pd.read_table(snakemake.input.mhd4, index_col=0, dtype=np.dtype(
 codebook_mhd2 = pd.read_table(snakemake.input.mhd2, index_col=0, dtype=np.dtype(str))["codeword"]
 genes = set(codebook_mhd2.index) | set(codebook_mhd4.index)
 
-with open(snakemake.output.known_counts, "w") as known_out:
+with open(snakemake.output[0], "w") as known_out:
     known_out = csv.writer(known_out, delimiter="\t")
     known_out.writerow(["cell", "feat", "mhd2", "mhd4", "count"])
     for cell in range(snakemake.params.cell_count):

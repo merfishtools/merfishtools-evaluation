@@ -59,7 +59,7 @@ rule generate_mhd2_codebook:
     output:
         "codebook/{dataset}.txt"
     wildcard_constraints:
-        dataset="simulated.+"
+        dataset="simulated-MHD(2|4)-[0-9]"
     params:
         ds=lambda wildcards: config[wildcards.dataset]
     conda:
@@ -78,7 +78,7 @@ rule generate_mhd4_codebook:
     wildcard_constraints:
         dataset="simulated.+"
     params:
-        ds=lambda wildcards: config[wildcards.dataset]
+        ds=lambda wildcards: config["datasets"][wildcards.dataset]
     conda:
         "envs/analysis.yml"
     shell:
@@ -138,7 +138,7 @@ rule expressions:
         pmf="expressions/{dataset}.{experiment,[0-9]+}.{group}.{settings}.txt",
         est="expressions/{dataset}.{experiment,[0-9]+}.{group}.{settings}.est.txt",
     params:
-        ds=lambda wildcards: config["datasets"][wildcards.dataset],
+        ds=lambda wildcards: config["datasets"][wildcards.dataset]
     benchmark:
         "bench/exp/{dataset}.{settings}.txt"
     conda:
@@ -146,8 +146,8 @@ rule expressions:
     threads: 8
     shell:
         "{merfishtools} exp {input.codebook} --p0 {params.ds[err01]} "
-        "--p1 {params.ds[err10]} --codebook {input.codebook} "
-        "--hamming-dist {params.ds[dist]} -N {params.ds[N]} "
+        "--p1 {params.ds[err10]} -N {params.ds[N]} -m {params.ds[m]} "
+        "--dist {params.ds[dist]} "
         "--estimate {output.est} -t {threads} "
         "< {input.data} > {output.pmf}"
 
@@ -278,12 +278,17 @@ rule enrichment:
 #### simulation ####
 
 
+CELL_COUNT = 100
+
+
 rule simulate_counts:
     input:
         mhd4=config["codebooks"]["simulated-MHD4"],
         mhd2=config["codebooks"]["simulated-MHD2"]
     output:
         "data/simulated.{mean}.known.txt"
+    params:
+        cell_count=CELL_COUNT
     conda:
         "envs/analysis.yml"
     script:
@@ -292,12 +297,13 @@ rule simulate_counts:
 
 rule simulate:
     input:
-        mhd4=lambda wildcards: config["codebooks"][wildcards.dataset]["codebook"]
+        known_counts="data/simulated.{mean}.known.txt",
+        codebook=lambda wildcards: config["codebooks"][wildcards.dataset]
     output:
         sim_counts="data/{dataset}.{mean}.all.txt",
         stats="data/{dataset}.{mean}.stats.txt"
     params:
-        cell_count=100,
+        cell_count=CELL_COUNT,
         ds=lambda wildcards: config["datasets"][wildcards.dataset]
     conda:
         "envs/analysis.yml"
@@ -489,8 +495,14 @@ rule plot_dataset_correlation:
 #### figures ####
 
 
-load_svg = lambda path: sg.fromfile(path).getroot()
-label_plot = lambda x, y, label: sg.TextElement(x, y, label, size=12, weight="bold")
+def load_svg(path):
+    import svgutils.transform as sg
+    return sg.fromfile(path).getroot()
+
+
+def label_plot(x, y, label):
+    import svgutils.transform as sg
+    return sg.TextElement(x, y, label, size=12, weight="bold")
 
 
 rule figure_example:
