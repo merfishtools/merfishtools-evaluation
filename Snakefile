@@ -59,13 +59,13 @@ rule generate_mhd2_codebook:
     output:
         "codebook/{dataset}.txt"
     wildcard_constraints:
-        dataset="simulated-MHD(2|4)-[0-9]"
+        dataset="simulated-MHD2-[0-9]"
     params:
         ds=lambda wildcards: config[wildcards.dataset]
     conda:
         "envs/analysis.yml"
     shell:
-        "cut -f1 {input.template} | merfishtools gen-mhd2 "
+        "cut -f1 {input.template} | tail -n+2 | merfishtools gen-mhd2 "
         "-n {params.ds[N]} -m {params.ds[m]} "
         "> {output}"
 
@@ -76,13 +76,13 @@ rule generate_mhd4_codebook:
     output:
         "codebook/{dataset}.txt"
     wildcard_constraints:
-        dataset="simulated.+"
+        dataset="simulated-MHD4-[0-9]"
     params:
         ds=lambda wildcards: config["datasets"][wildcards.dataset]
     conda:
         "envs/analysis.yml"
     shell:
-        "cut -f1 {input.template} | merfishtools gen-mhd4 "
+        "cut -f1 {input.template} | tail -n+2  | merfishtools gen-mhd4 "
         "-m {params.ds[m]} "
         "> {output}"
 
