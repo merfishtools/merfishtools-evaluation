@@ -61,7 +61,7 @@ rule generate_mhd2_codebook:
     wildcard_constraints:
         dataset="simulated-MHD2-[0-9]"
     params:
-        ds=lambda wildcards: config[wildcards.dataset]
+        ds=lambda wildcards: config["datasets"][wildcards.dataset]
     conda:
         "envs/analysis.yml"
     shell:

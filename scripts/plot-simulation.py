@@ -57,7 +57,7 @@ def plot_hexbin(type, path, color):
     colors = [set_hls_values(color_rgb, l=l) for l in np.linspace(1, 0, 12)]
     cmap = blend_palette(colors, as_cmap=True)
 
-    plt.figure(figsize=0.75 * snakemake.config["plots"]["figsize"])
+    plt.figure(figsize=0.75 * np.array(snakemake.config["plots"]["figsize"]))
     plt.subplot(111, aspect="equal")
     #plt.scatter(counts["known"], counts[type], s=1, c="k", alpha=0.3, rasterized=True, edgecolors="face", marker="o")
     plt.hexbin(counts["known"], counts[type], cmap=cmap, gridsize=25, clip_on=True)
