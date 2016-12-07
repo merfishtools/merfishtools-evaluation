@@ -66,7 +66,7 @@ rule generate_mhd2_codebook:
         "envs/analysis.yml"
     shell:
         "cut -f1 {input.template} | tail -n+2 | merfishtools gen-mhd2 "
-        "-n {params.ds[N]} -m {params.ds[m]} "
+        "-N {params.ds[N]} -m {params.ds[m]} "
         "> {output}"
 
 
@@ -302,6 +302,8 @@ rule simulate:
     output:
         sim_counts="data/{dataset}.{mean}.all.txt",
         stats="data/{dataset}.{mean}.stats.txt"
+    wildcard_constraints:
+        dataset="simulated.+"
     params:
         cell_count=CELL_COUNT,
         ds=lambda wildcards: config["datasets"][wildcards.dataset]
@@ -455,7 +457,8 @@ rule plot_simulation:
     output:
         violin="results/{context}/simulation-MHD{dist}/MHD{dist}.error.{settings}.svg",
         scatter_raw="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter-raw.{settings}.svg",
-        scatter_posterior="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter-posterior.{settings}.svg"
+        scatter_posterior="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter-posterior.{settings}.svg",
+        ci_errors="results/{context}/simulation-MHD{dist}/MHD{dist}.ci-errors.{settings}.svg",
     params:
         means=means
     conda:

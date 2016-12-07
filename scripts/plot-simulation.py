@@ -7,19 +7,28 @@ import seaborn as sns
 from seaborn.palettes import blend_palette
 from seaborn.utils import set_hls_values
 
+
+def ci_error(lower, upper, truth):
+    below = np.maximum(lower - truth, 0)
+    above = np.maximum(truth - upper, 0)
+    return below + above
+
+
 epsilon = 0.001
 
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
 
+
 errors = []
 counts = []
+ci_errors = []
 for i, (mean, posterior_counts, raw_counts, known_counts) in enumerate(zip(
     snakemake.params.means,
     snakemake.input.posterior_counts,
     snakemake.input.raw_counts,
     snakemake.input.known_counts)):
 
-    posterior_counts = pd.read_table(posterior_counts, index_col=[0, 1])["expr_ev"]
+    posterior_estimates = pd.read_table(posterior_counts, index_col=[0, 1])
     raw_counts = pd.read_table(raw_counts, index_col=[0, 1])
     raw_counts = raw_counts["exact"] + raw_counts["corrected"]
     known_counts = pd.read_table(known_counts, index_col=[0, 1])
@@ -27,27 +36,14 @@ for i, (mean, posterior_counts, raw_counts, known_counts) in enumerate(zip(
     known_counts = known_counts[known_counts[codebook]]
 
     raw_counts = raw_counts.reindex(known_counts.index, fill_value=0)
-    posterior_counts = posterior_counts.reindex(known_counts.index, fill_value=0)
-    biased = posterior_counts[posterior_counts > 70].index
-    unbiased = posterior_counts[(posterior_counts > 49) & (posterior_counts < 51)].index
+    posterior_estimates = posterior_estimates.reindex(known_counts.index, fill_value=0)
 
-    if mean == 30:
-        print(posterior_counts.loc[biased])
-        print(raw_counts.loc[biased])
-        print(known_counts.loc[biased])
-        print("unbiased")
-        print(posterior_counts.loc[unbiased])
-        print(raw_counts.loc[unbiased])
-        print(known_counts.loc[unbiased])
-
-
-    #plt.plot(known_counts["count"], posterior_counts, "r.", label="conditional expectation" if i == 0 else "", zorder=1, alpha=0.01, rasterized=True)
-    #plt.plot(known_counts["count"], raw_counts, "k.", label="raw counts" if i == 0 else "", zorder=0, alpha=0.01, rasterized=True)
-
-    counts.append(pd.DataFrame({"known": known_counts["count"], "raw": raw_counts, "posterior": posterior_counts}))
-
+    counts.append(pd.DataFrame({"known": known_counts["count"], "raw": raw_counts, "posterior": posterior_estimates["expr_map"]}))
     errors.append(pd.DataFrame({"error": raw_counts - known_counts["count"], "mean": mean, "type": "raw"}))
-    errors.append(pd.DataFrame({"error": posterior_counts - known_counts["count"], "mean": mean, "type": "posterior"}))
+    errors.append(pd.DataFrame({"error": posterior_estimates["expr_map"] - known_counts["count"], "mean": mean, "type": "posterior"}))
+    ci_errors.append(pd.DataFrame({
+        "error": ci_error(posterior_estimates["expr_ci_lower"], posterior_estimates["expr_ci_upper"], known_counts["count"]),
+        "mean": mean}))
 
 counts = pd.concat(counts)
 print(counts.describe())
@@ -78,11 +74,10 @@ plot_hexbin("raw", snakemake.output.scatter_raw, colors[0])
 plot_hexbin("posterior", snakemake.output.scatter_posterior, colors[1])
 
 errors = pd.concat(errors)
-s = (errors["type"] == "posterior") & (errors["mean"] == 5)
 
 x, y = snakemake.config["plots"]["figsize"]
 plt.figure(figsize=(x * 1.5, y))
-sns.violinplot(x="mean", y="error", hue="type", data=errors, bw=1, split=True, inner="quartile", linewidth=1, palette=colors)
+sns.violinplot(x="mean", y="error", hue="type", data=errors, bw=1, split=True, inner="quartile", palette=colors, linewidth=1)
 plt.plot(plt.xlim(), [0, 0], "-k", linewidth=1, zorder=-5)
 
 plt.xlabel("mean expression")
@@ -91,3 +86,18 @@ plt.legend(loc="lower left")
 sns.despine()
 
 plt.savefig(snakemake.output.violin, bbox_inches="tight")
+
+
+# plot CI errors
+ci_errors = pd.concat(ci_errors).astype(np.int64)
+
+hist = ci_errors["error"].value_counts(normalize=True)
+hist = hist[hist.cumsum() < 0.9999]
+
+plt.figure(figsize=(0.2 * hist.size, y))
+sns.barplot(hist.index, hist, color=colors[1])
+plt.ylabel("fraction")
+plt.xlabel("absolute error (outside CI)")
+sns.despine()
+
+plt.savefig(snakemake.output.ci_errors, bbox_inches="tight")
