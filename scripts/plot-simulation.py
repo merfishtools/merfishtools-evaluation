@@ -18,6 +18,7 @@ epsilon = 0.001
 
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
 
+codebook = pd.read_table(snakemake.input.codebook, index_col=0)
 
 errors = []
 counts = []
@@ -32,8 +33,7 @@ for i, (mean, posterior_counts, raw_counts, known_counts) in enumerate(zip(
     raw_counts = pd.read_table(raw_counts, index_col=[0, 1])
     raw_counts = raw_counts["exact"] + raw_counts["corrected"]
     known_counts = pd.read_table(known_counts, index_col=[0, 1])
-    codebook = "mhd4" if snakemake.wildcards.dist == "4" else "mhd2"
-    known_counts = known_counts[known_counts[codebook]]
+    known_counts = known_counts.reindex(codebook.index, level=1)
 
     raw_counts = raw_counts.reindex(known_counts.index, fill_value=0)
     posterior_estimates = posterior_estimates.reindex(known_counts.index, fill_value=0)
@@ -41,9 +41,10 @@ for i, (mean, posterior_counts, raw_counts, known_counts) in enumerate(zip(
     counts.append(pd.DataFrame({"known": known_counts["count"], "raw": raw_counts, "posterior": posterior_estimates["expr_map"]}))
     errors.append(pd.DataFrame({"error": raw_counts - known_counts["count"], "mean": mean, "type": "raw"}))
     errors.append(pd.DataFrame({"error": posterior_estimates["expr_map"] - known_counts["count"], "mean": mean, "type": "posterior"}))
-    ci_errors.append(pd.DataFrame({
+    errors.append(pd.DataFrame({
         "error": ci_error(posterior_estimates["expr_ci_lower"], posterior_estimates["expr_ci_upper"], known_counts["count"]),
-        "mean": mean}))
+        "mean": mean,
+        "type": "ci"}))
 
 counts = pd.concat(counts)
 print(counts.describe())
@@ -77,7 +78,8 @@ errors = pd.concat(errors)
 
 x, y = snakemake.config["plots"]["figsize"]
 plt.figure(figsize=(x * 1.5, y))
-sns.violinplot(x="mean", y="error", hue="type", data=errors, bw=1, split=True, inner="quartile", palette=colors, linewidth=1)
+pred_errors = errors[(errors["type"] == "raw") | (errors["type"] == "posterior")]
+sns.violinplot(x="mean", y="error", hue="type", data=pred_errors, bw=1, split=True, inner="quartile", palette=colors, linewidth=1)
 plt.plot(plt.xlim(), [0, 0], "-k", linewidth=1, zorder=-5)
 
 plt.xlabel("mean expression")
@@ -89,15 +91,39 @@ plt.savefig(snakemake.output.violin, bbox_inches="tight")
 
 
 # plot CI errors
-ci_errors = pd.concat(ci_errors).astype(np.int64)
+ci_errors = errors[errors["type"] == "ci"]["error"].astype(np.int64)
 
-hist = ci_errors["error"].value_counts(normalize=True)
-hist = hist[hist.cumsum() < 0.9999]
+hist = ci_errors.value_counts(normalize=True)
+hist = hist[[0, 1, 2]]
 
 plt.figure(figsize=(0.2 * hist.size, y))
 sns.barplot(hist.index, hist, color=colors[1])
 plt.ylabel("fraction")
-plt.xlabel("absolute error (outside CI)")
+plt.xlabel("CI error")
 sns.despine()
 
 plt.savefig(snakemake.output.ci_errors, bbox_inches="tight")
+
+
+# write errors
+errors.to_csv(snakemake.output.errors, sep="\t")
+
+# RMSE
+# rmse = lambda errors: np.sqrt((errors ** 2).mean())
+# quantile = lambda errors: errors.quantile(0.98)
+# maxval = lambda errors: errors.max()
+# sd = lambda errors: errors.std()
+#
+# ci_errors = ci_errors["error"].abs()
+# raw_errors = errors.loc[errors["type"] == "raw", "error"].abs()
+# posterior_errors = errors.loc[errors["type"] == "posterior", "error"].abs()
+# print(posterior_errors.max())
+# all_errors = [ci_errors, raw_errors, posterior_errors]
+#
+# d = pd.DataFrame({
+#     "rmse": list(map(rmse, all_errors)),
+#     "upper_quantile": list(map(quantile, all_errors)),
+#     "max": list(map(maxval, all_errors)),
+#     "sd": list(map(sd, all_errors))},
+#     index=["ci", "raw", "posterior"])
+# d.to_csv(snakemake.output.rmse, sep="\t")

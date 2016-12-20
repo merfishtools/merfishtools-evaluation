@@ -36,6 +36,9 @@ rule all:
                 "figures/fig_cv_raw_vs_posterior.pdf",
                 "results/{dataset}.default.go_enrichment.terms.txt"], dataset=datasets),
         expand("results/{context}/{dataset}.{type}.default.qqplot.pdf", context="paper", dataset=datasets, type=types),
+        expand("results/{context}/simulation-MHD2-{m}/MHD2-{m}.error.default.svg", m=[4,6,8], context="paper"),
+        expand("results/{context}/simulation-MHD4-{m}/MHD4-{m}.error.default.svg", m=[4,6,8], context="paper"),
+        #expand("results/{context}/simulation-MHD{dist}.rmse.default.svg", dist=2, context="paper"),
         "figures/fig_model.pdf"
 
 
@@ -453,18 +456,31 @@ rule plot_simulation:
     input:
         posterior_counts=expand("expressions/simulated-MHD{{dist}}.{mean}.all.{{settings}}.est.txt", mean=means),
         raw_counts=expand("counts/simulated-MHD{{dist}}.{mean}.all.txt", mean=means),
-        known_counts=expand("data/simulated.{mean}.known.txt", mean=means)
+        known_counts=expand("data/simulated.{mean}.known.txt", mean=means),
+        codebook="codebook/simulated-MHD{dist}.txt"
     output:
         violin="results/{context}/simulation-MHD{dist}/MHD{dist}.error.{settings}.svg",
         scatter_raw="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter-raw.{settings}.svg",
         scatter_posterior="results/{context}/simulation-MHD{dist}/MHD{dist}.scatter-posterior.{settings}.svg",
         ci_errors="results/{context}/simulation-MHD{dist}/MHD{dist}.ci-errors.{settings}.svg",
+        errors="results/{context}/simulation-MHD{dist}/MHD{dist}.errors.{settings}.txt"
     params:
         means=means
     conda:
         "envs/analysis.yml"
     script:
         "scripts/plot-simulation.py"
+
+
+rule plot_m_vs_errors:
+    input:
+        expand("results/{{context}}/simulation-MHD{{dist}}-{m}/MHD{{dist}}-{m}.errors.{{settings}}.txt", m=[4, 6, 8])
+    output:
+        "results/{context}/simulation-MHD{dist}.m-vs-errors.{settings}.svg"
+    params:
+        ms=[4, 6, 8]
+    script:
+        "scripts/plot-m-vs-errors.py"
 
 
 rule plot_simulation_pmf:
