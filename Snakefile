@@ -31,6 +31,7 @@ rule all:
         "figures/fig_example.pdf",
         "figures/fig_simulation.pdf",
         "figures/fig_simulation_supp.pdf",
+        "figures/fig_simulation_ci_error.pdf",
         expand("figures/fig_{dataset}.{type}.clustering.pdf", dataset=datasets, type=types),
         "results/paper/140genesData.default.go_enrichment.pdf",
         expand(["figures/fig_{dataset}.multidiffexp.pdf",
@@ -593,6 +594,18 @@ rule figure_simulation_supp:
         "envs/analysis.yml"
     script:
         "scripts/fig-simulation.py"
+
+
+rule figure_simulation_ci_error:
+    input:
+        a="results/paper/simulation-MHD4/MHD4.ci-errors.default.svg",
+        b="results/paper/simulation-MHD2/MHD2.ci-errors.default.svg",
+        c="results/paper/simulation-MHD4-4/MHD4-4.ci-errors.default.svg",
+        d="results/paper/simulation-MHD2-8/MHD2-8.ci-errors.default.svg"
+    output:
+        "figures/fig_simulation_ci_error.svg"
+    script:
+        "scripts/fig-ci-error.py"
 
 
 rule figure_clustering:
