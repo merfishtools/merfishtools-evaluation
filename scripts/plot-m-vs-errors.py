@@ -17,11 +17,12 @@ print(errors)
 
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
 colors = sns.xkcd_palette(["grey", "light red", "red"])
-sns.boxplot(x="m", y="error", hue="type", data=errors, palette=colors)
+g = sns.FacetGrid(errors, col="type")
+g.map(sns.boxplot, "m", "error").despine()
 
-plt.xlabel("1-bits")
-plt.ylabel("absolute error")
-plt.legend(loc="best")
-sns.despine()
+#plt.xlabel("1-bits")
+#plt.ylabel("absolute error")
+#plt.legend(loc="best")
+#sns.despine()
 
 plt.savefig(snakemake.output[0], bbox_inches="tight")

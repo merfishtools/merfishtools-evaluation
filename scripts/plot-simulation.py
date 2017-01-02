@@ -38,6 +38,9 @@ for i, (mean, posterior_counts, raw_counts, known_counts) in enumerate(zip(
     raw_counts = raw_counts.reindex(known_counts.index, fill_value=0)
     posterior_estimates = posterior_estimates.reindex(known_counts.index, fill_value=0)
 
+    dropouts = known_counts[(known_counts["count"] > 0) & (raw_counts == 0)]
+    print("droupouts", dropouts)
+
     counts.append(pd.DataFrame({"known": known_counts["count"], "raw": raw_counts, "posterior": posterior_estimates["expr_map"]}))
     errors.append(pd.DataFrame({"error": raw_counts - known_counts["count"], "mean": mean, "type": "raw"}))
     errors.append(pd.DataFrame({"error": posterior_estimates["expr_map"] - known_counts["count"], "mean": mean, "type": "posterior"}))
@@ -47,7 +50,6 @@ for i, (mean, posterior_counts, raw_counts, known_counts) in enumerate(zip(
         "type": "ci"}))
 
 counts = pd.concat(counts)
-print(counts.describe())
 
 def plot_hexbin(type, path, color):
     color_rgb = mpl.colors.colorConverter.to_rgb(color)
@@ -104,6 +106,11 @@ sns.despine()
 
 plt.savefig(snakemake.output.ci_errors, bbox_inches="tight")
 
+
+# print RMSE
+rmse = lambda errors: np.sqrt((errors ** 2).mean())
+print("posterior RMSE", rmse(errors[errors["type"] == "posterior"]["error"]))
+print("raw RMSE", rmse(errors[errors["type"] == "raw"]["error"]))
 
 # write errors
 errors.to_csv(snakemake.output.errors, sep="\t")

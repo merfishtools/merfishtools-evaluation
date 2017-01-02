@@ -30,6 +30,7 @@ rule all:
     input:
         "figures/fig_example.pdf",
         "figures/fig_simulation.pdf",
+        "figures/fig_simulation_supp.pdf",
         expand("figures/fig_{dataset}.{type}.clustering.pdf", dataset=datasets, type=types),
         "results/paper/140genesData.default.go_enrichment.pdf",
         expand(["figures/fig_{dataset}.multidiffexp.pdf",
@@ -565,39 +566,33 @@ rule figure_example:
 rule figure_simulation:
     input:
         d="results/paper/simulation-MHD4/MHD4.scatter-raw.default.svg",
-        f="results/paper/simulation-MHD2/MHD2.scatter-raw.default.svg",
+        f="results/paper/simulation-MHD2-8/MHD2-8.scatter-raw.default.svg",
         c="results/paper/simulation-MHD4/MHD4.scatter-posterior.default.svg",
-        e="results/paper/simulation-MHD2/MHD2.scatter-posterior.default.svg",
+        e="results/paper/simulation-MHD2-8/MHD2-8.scatter-posterior.default.svg",
         a="results/paper/simulation-MHD4/MHD4.error.default.svg",
-        b="results/paper/simulation-MHD2/MHD2.error.default.svg"
+        b="results/paper/simulation-MHD2-8/MHD2-8.error.default.svg",
     output:
         "figures/fig_simulation.svg"
     conda:
         "envs/analysis.yml"
-    run:
-        import svgutils.transform as sg
-        fig = sg.SVGFigure("5.8in", "3.3in")
-        a = load_svg(input.a)
-        b = load_svg(input.b)
-        c = load_svg(input.c)
-        d = load_svg(input.d)
-        e = load_svg(input.e)
-        f = load_svg(input.f)
-        b.moveto(260, 0)
-        c.moveto(0, 160)
-        d.moveto(125, 160)
-        e.moveto(250, 160)
-        f.moveto(380, 160)
+    script:
+        "scripts/fig-simulation.py"
 
-        la = label_plot(5, 10, "a")
-        lb = label_plot(265, 10, "d")
-        lc = label_plot(5, 170, "b")
-        ld = label_plot(130, 170, "c")
-        le = label_plot(255, 170, "e")
-        lf = label_plot(385, 170, "f")
 
-        fig.append([a, b, c, d, e, f, la, lb, lc, ld, le, lf])
-        fig.save(output[0])
+rule figure_simulation_supp:
+    input:
+        d="results/paper/simulation-MHD4-4/MHD4-4.scatter-raw.default.svg",
+        f="results/paper/simulation-MHD2/MHD2.scatter-raw.default.svg",
+        c="results/paper/simulation-MHD4-4/MHD4-4.scatter-posterior.default.svg",
+        e="results/paper/simulation-MHD2/MHD2.scatter-posterior.default.svg",
+        a="results/paper/simulation-MHD4-4/MHD4-4.error.default.svg",
+        b="results/paper/simulation-MHD2/MHD2.error.default.svg",
+    output:
+        "figures/fig_simulation_supp.svg"
+    conda:
+        "envs/analysis.yml"
+    script:
+        "scripts/fig-simulation.py"
 
 
 rule figure_clustering:

@@ -3,4 +3,4 @@
 !Snakefile
 !environment.yml
 !config.yaml
-!scripts/*
+!scripts
