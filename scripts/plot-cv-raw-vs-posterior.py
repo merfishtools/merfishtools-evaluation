@@ -52,7 +52,7 @@ plt.plot(limits, limits, "r--")
 
 plt.xlim(limits)
 plt.ylim(limits)
-plt.xlabel("posterior CV")
+plt.xlabel("posterior CV" + (" (conservative)" if snakemake.wildcards.estimate == "cv_ci_lower" else ""))
 plt.ylabel("raw CV")
 sns.despine()
 plt.savefig(snakemake.output[0], bbox_inches="tight")
