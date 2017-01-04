@@ -326,7 +326,7 @@ rule plot_cv_raw_vs_posterior:
         raw_counts=lambda wildcards: expand("counts/{dataset}.{expmnt}.all.txt", dataset=wildcards.dataset, expmnt=experiments(wildcards.dataset)),
         diffexp="multidiffexp/{dataset}.{settings}.est.txt"
     output:
-        "results/{context}/{dataset}.{settings}.cv_raw_vs_posterior.svg"
+        "results/{context}/{dataset}.{settings}.cv_raw_vs_posterior.{estimate}.svg"
     conda:
         "envs/analysis.yml"
     script:
@@ -653,24 +653,36 @@ rule figure_multidiffexp:
         "cp {input} {output}"
 
 
+
+def get_cv_raw_vs_posterior_input(dataset):
+    return expand("results/paper/{dataset}.default.cv_raw_vs_posterior.{estimate}.svg", dataset=dataset, estimate=["cv_ev", "cv_ci_lower"])
+
+
 rule figure_cv_raw_vs_posterior:
     input:
-        expand("results/paper/{dataset}.default.cv_raw_vs_posterior.svg", dataset=datasets)
+        mhd4=get_cv_raw_vs_posterior_input(datasets[0]),
+        mhd2=get_cv_raw_vs_posterior_input(datasets[1])
     output:
         "figures/fig_cv_raw_vs_posterior.svg"
     conda:
         "envs/analysis.yml"
     run:
         import svgutils.transform as sg
-        fig = sg.SVGFigure("3.8in", "1.9in")
-        a = load_svg(input[0])
-        b = load_svg(input[1])
-        b.moveto(160, 0)
+        fig = sg.SVGFigure("7.5in", "1.9in")
+        a = load_svg(input.mhd4[0])
+        b = load_svg(input.mhd4[1])
+        c = load_svg(input.mhd2[0])
+        d = load_svg(input.mhd2[1])
+        b.moveto(170, 0)
+        c.moveto(340, 0)
+        d.moveto(500, 0)
 
-        la = label_plot(5,10, "a")
-        lb = label_plot(165,10, "b")
+        la = label_plot(5, 10, "a")
+        lb = label_plot(175, 10, "b")
+        lc = label_plot(345, 10, "c")
+        ld = label_plot(505, 10, "d")
 
-        fig.append([a, b, la, lb])
+        fig.append([a, b, c, d, la, lb, lc, ld])
         fig.save(output[0])
 
 
