@@ -32,6 +32,7 @@ rule all:
         "figures/fig_simulation.pdf",
         "figures/fig_simulation_supp.pdf",
         "figures/fig_simulation_ci_error.pdf",
+        "figures/fig_exact_vs_corrected.pdf",
         expand("figures/fig_{dataset}.{type}.clustering.pdf", dataset=datasets, type=types),
         "results/paper/140genesData.default.go_enrichment.pdf",
         expand(["figures/fig_{dataset}.multidiffexp.pdf",
@@ -685,6 +686,14 @@ rule figure_cv_raw_vs_posterior:
         fig.append([a, b, c, d, la, lb, lc, ld])
         fig.save(output[0])
 
+
+rule figure_exact_vs_corrected:
+    input:
+        expand("counts/140genesData.{experiment}.all.txt", experiment=experiments("140genesData"))
+    output:
+        "figures/fig_exact_vs_corrected.svg"
+    script:
+        "scripts/plot-exact-vs-corrected.py"
 
 rule figure_model:
     input:
