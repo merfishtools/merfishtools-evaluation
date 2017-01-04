@@ -2152,7 +2152,7 @@
   </clipPath>
  </defs>
 </g>
-    <g transform=" translate(500, 0) scale(1)"><defs>
+    <g transform=" translate(510, 0) scale(1)"><defs>
   <style type="text/css">
 *{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
   </style>
@@ -3446,6 +3446,6 @@
     <text font-family="Verdana" font-size="12" font-weight="bold" letter-spacing="0" text-anchor="start" x="5" y="10">a</text>
     <text font-family="Verdana" font-size="12" font-weight="bold" letter-spacing="0" text-anchor="start" x="175" y="10">b</text>
     <text font-family="Verdana" font-size="12" font-weight="bold" letter-spacing="0" text-anchor="start" x="345" y="10">c</text>
-    <text font-family="Verdana" font-size="12" font-weight="bold" letter-spacing="0" text-anchor="start" x="505" y="10">d</text>
+    <text font-family="Verdana" font-size="12" font-weight="bold" letter-spacing="0" text-anchor="start" x="515" y="10">d</text>
   </g>
 </svg>

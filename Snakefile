@@ -675,12 +675,12 @@ rule figure_cv_raw_vs_posterior:
         d = load_svg(input.mhd2[1])
         b.moveto(170, 0)
         c.moveto(340, 0)
-        d.moveto(500, 0)
+        d.moveto(510, 0)
 
         la = label_plot(5, 10, "a")
         lb = label_plot(175, 10, "b")
         lc = label_plot(345, 10, "c")
-        ld = label_plot(505, 10, "d")
+        ld = label_plot(515, 10, "d")
 
         fig.append([a, b, c, d, la, lb, lc, ld])
         fig.save(output[0])
