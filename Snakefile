@@ -698,6 +698,7 @@ rule figure_exact_vs_corrected:
 rule figure_model:
     input:
         "figures/sketch-small.svg",
+        "figures/events.svg",
         "figures/urn-model.svg",
         "figures/model.svg"
     output:
@@ -706,20 +707,23 @@ rule figure_model:
         "envs/analysis.yml"
     run:
         import svgutils.transform as sg
-        fig = sg.SVGFigure("7.7in", "3.2in")
+        fig = sg.SVGFigure("7.7in", "3.6in")
         a = load_svg(input[0])
         b = load_svg(input[1])
         c = load_svg(input[2])
+        d = load_svg(input[3])
         a.moveto(10, 10, scale=0.6)
-        b.moveto(40, 130, scale=0.6)
-        c.moveto(230, 10, scale=0.8)
+        b.moveto(20, 130, scale=0.36)
+        c.moveto(40, 190, scale=0.6)
+        d.moveto(230, 10, scale=0.8)
 
 
         la = label_plot(5, 10, "a")
         lb = label_plot(5, 130, "b")
-        lc = label_plot(215, 10, "c")
+        lc = label_plot(5, 190, "c")
+        ld = label_plot(215, 10, "d")
 
-        fig.append([a, b, c, la, lb, lc])
+        fig.append([a, b, c, d, la, lb, lc, ld])
         fig.save(output[0])
 
 
