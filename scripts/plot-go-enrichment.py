@@ -11,7 +11,7 @@ terms = pd.read_table(snakemake.input.terms, index_col=0)
 genes = pd.read_table(snakemake.input.genes)
 genes.index = genes["goterm"]
 
-terms = terms[terms["adjPvalue"] <= 0.1]
+terms = terms[terms["Pvalue"] <= 0.01]
 
 genes = genes.loc[terms.index]
 genes = genes.set_index(["goterm", "gene"])

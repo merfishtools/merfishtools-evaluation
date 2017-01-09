@@ -30,11 +30,12 @@ if(nrow(foreground) > 0) {
                   conditional = TRUE,
                   testDirection = "over")
     results <- hyperGTest(params)
+    print(results)
     goterms <- summary(results)
 
     # correct for multiple testing. We use Benjamini-Yekuteli here, because the performed tests are strongly dependent
-    by <- bonferroni(goterms$Pvalue, 0.05)
-    goterms$adjPvalue <- by[["adjPValues"]]
+    #by <- BY(goterms$Pvalue, 0.05)
+    #goterms$adjPvalue <- by[["adjPValues"]]
 
     write.table(goterms, file = snakemake@output[["terms"]], row.names = FALSE, quote = FALSE, sep = "\t")
 
