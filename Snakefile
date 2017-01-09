@@ -621,19 +621,19 @@ rule figure_clustering:
         "envs/analysis.yml"
     run:
         import svgutils.transform as sg
-        fig = sg.SVGFigure("4.6in", "1.1in")
+        fig = sg.SVGFigure("4.8in", "1.1in")
         a = load_svg(input.a)
         b = load_svg(input.b)
         c = load_svg(input.c)
         d = load_svg(input.d)
         b.moveto(160, 0)
-        c.moveto(244, 0)
-        d.moveto(328, 0)
+        c.moveto(250, 0)
+        d.moveto(340, 0)
 
         la = label_plot(5,10, "a")
         lb = label_plot(165,10, "b")
-        lc = label_plot(249,10, "c")
-        ld = label_plot(333,10, "d")
+        lc = label_plot(255,10, "c")
+        ld = label_plot(345,10, "d")
 
         fig.append([a, b, c, d, la, lb, lc, ld])
         fig.save(output[0])
