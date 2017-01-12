@@ -1,6 +1,6 @@
 # Evaluation of MERFISHtools
 
-[![Snakemake](https://img.shields.io/badge/snakemake-≥3.6.1-brightgreen.svg?style=flat-square)](http://snakemake.bitbucket.org)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥3.6.1-brightgreen.svg)](http://snakemake.bitbucket.org)
 [![DOI](https://zenodo.org/badge/57039360.svg)](https://zenodo.org/badge/latestdoi/57039360)
 
 This Snakemake workflow generates the entire analysis of the forthcoming manuscript
