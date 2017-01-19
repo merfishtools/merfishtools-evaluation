@@ -340,7 +340,7 @@ rule plot_error_rate_uncertainty:
             for uncertainty in ["default", "err+10%", "err+20%", "err+30%"]
         }
     output:
-        "results/{context}/error-rate-uncertainty.svg"
+        "results/{context}/simulation-MHD{dist}/MHD{dist}.error-rate-uncertainty.svg"
     params:
         means=means
     script:
