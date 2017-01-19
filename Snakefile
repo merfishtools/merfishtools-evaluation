@@ -4,6 +4,9 @@ at http://zhuang.harvard.edu/merfish.
 """
 
 
+from copy import deepcopy
+
+
 configfile: "config.yaml"
 
 merfishtools = "merfishtools"
@@ -138,7 +141,7 @@ def get_codebook(wildcards):
 
 
 def get_expressions_params(wildcards):
-    ds = config["datasets"][wildcards.dataset]
+    ds = deepcopy(config["datasets"][wildcards.dataset])
     settings = config["settings"][wildcards.settings]
     ds["err01"] *= settings["err01-factor"]
     ds["err10"] *= settings["err10-factor"]
