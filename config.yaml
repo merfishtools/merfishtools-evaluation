@@ -117,11 +117,11 @@ settings:
     err01-factor: 1.1
     err10-factor: 1.1
   err+20%:
-    err01-factor: 1.1
-    err10-factor: 1.1
+    err01-factor: 1.2
+    err10-factor: 1.2
   err+30%:
-    err01-factor: 1.1
-    err10-factor: 1.1
+    err01-factor: 1.3
+    err10-factor: 1.3
 
 plots:
   figsize: [2.4, 2]
