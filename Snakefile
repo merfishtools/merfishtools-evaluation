@@ -46,7 +46,8 @@ rule all:
         expand("results/{context}/simulation-MHD2-{m}/MHD2-{m}.error.default.svg", m=[4,6,8], context="paper"),
         expand("results/{context}/simulation-MHD4-{m}/MHD4-{m}.error.default.svg", m=[4,6,8], context="paper"),
         #expand("results/{context}/simulation-MHD{dist}.rmse.default.svg", dist=2, context="paper"),
-        "figures/fig_model.pdf"
+        "figures/fig_model.pdf",
+        "figures/fig_error_rate_uncertainty.svg"
 
 
 #### handling raw data ####
@@ -551,6 +552,16 @@ def load_svg(path):
 def label_plot(x, y, label):
     import svgutils.transform as sg
     return sg.TextElement(x, y, label, size=12, weight="bold")
+
+
+rule figure_error_rate_uncertainty:
+    input:
+        a="results/paper/simulation-MHD4/MHD4.error-rate-uncertainty.svg",
+        b="results/paper/simulation-MHD2-8/MHD2-8.error-rate-uncertainty.svg"
+    output:
+        "figures/fig_error_rate_uncertainty.svg"
+    script:
+        "scripts/fig-error-rate-uncertainty.py"
 
 
 rule figure_example:
