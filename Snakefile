@@ -330,6 +330,22 @@ rule simulate:
 #### plots ####
 
 
+rule plot_error_rate_uncertainty:
+    input:
+        codebook="codebook/simulated-MHD{dist}.txt",
+        known_counts=expand("data/simulated.{mean}.known.txt", mean=means),
+        **{
+            uncertainty: expand("expressions/simulated-MHD{{dist}}.{mean}.all.{settings}.est.txt", mean=means, settings=uncertainty)
+            for uncertainty in ["default", "err+10%", "err+20%", "err+30%"]
+        }
+    output:
+        "results/{context}/error-rate-uncertainty.svg"
+    params:
+        means=means
+    script:
+        "scripts/plot-error-rate-uncertainty.py"
+
+
 rule plot_cv_raw_vs_posterior:
     input:
         raw_counts=lambda wildcards: expand("counts/{dataset}.{expmnt}.all.txt", dataset=wildcards.dataset, expmnt=experiments(wildcards.dataset)),
