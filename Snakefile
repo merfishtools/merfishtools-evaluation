@@ -136,6 +136,14 @@ def get_codebook(wildcards):
     return codebooks[int(wildcards.experiment)]
 
 
+def get_expressions_params(wildcards):
+    ds = config["datasets"][wildcards.dataset]
+    settings = config["settings"][wildcards.settings]
+    ds["err01"] *= settings["err01-factor"]
+    ds["err10"] *= settings["err10-factor"]
+    return ds
+
+
 rule expressions:
     input:
         data="data/{dataset}.{experiment}.{group}.txt",
@@ -144,7 +152,7 @@ rule expressions:
         pmf="expressions/{dataset}.{experiment,[0-9]+}.{group}.{settings}.txt",
         est="expressions/{dataset}.{experiment,[0-9]+}.{group}.{settings}.est.txt",
     params:
-        ds=lambda wildcards: config["datasets"][wildcards.dataset]
+        ds=get_expressions_params
     benchmark:
         "bench/exp/{dataset}.{settings}.txt"
     conda:

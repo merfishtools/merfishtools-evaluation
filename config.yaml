@@ -110,7 +110,18 @@ codebooks:
   simulated-MHD2-8: codebook/simulated-MHD2-8.txt
 
 settings:
-  default: ""
+  default:
+    err01-factor: 1.0
+    err10-factor: 1.0
+  err+10%:
+    err01-factor: 1.1
+    err10-factor: 1.1
+  err+20%:
+    err01-factor: 1.1
+    err10-factor: 1.1
+  err+30%:
+    err01-factor: 1.1
+    err10-factor: 1.1
 
 plots:
   figsize: [2.4, 2]
