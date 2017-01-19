@@ -11,6 +11,7 @@ merfishtools = "merfishtools"
 contexts = ["paper"]
 datasets = ["140genesData", "1001genesData"]
 types = ["expressions", "normalized_expressions"]
+means = list(range(5, 40, 5))
 
 
 def experiments(dataset):
@@ -474,9 +475,6 @@ rule plot_tsne:
         "envs/analysis.yml"
     script:
         "scripts/plot-tsne.py"
-
-
-means = list(range(5, 40, 5))
 
 
 rule plot_simulation:
