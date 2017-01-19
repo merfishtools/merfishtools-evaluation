@@ -47,7 +47,7 @@ rule all:
         expand("results/{context}/simulation-MHD4-{m}/MHD4-{m}.error.default.svg", m=[4,6,8], context="paper"),
         #expand("results/{context}/simulation-MHD{dist}.rmse.default.svg", dist=2, context="paper"),
         "figures/fig_model.pdf",
-        "figures/fig_error_rate_uncertainty.svg"
+        "figures/fig_error_rate_uncertainty.pdf"
 
 
 #### handling raw data ####

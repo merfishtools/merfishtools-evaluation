@@ -2,7 +2,7 @@ import svgutils.transform as sg
 from common import load_svg, label_plot
 
 
-fig = sg.SVGFigure("4.15in", "1.8in")
+fig = sg.SVGFigure("5.8in", "1.8in")
 a = load_svg(snakemake.input.a)
 b = load_svg(snakemake.input.b)
 b.moveto(260, 0)
