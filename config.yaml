@@ -113,15 +113,18 @@ settings:
   default:
     err01-factor: 1.0
     err10-factor: 1.0
-  err+10%:
-    err01-factor: 1.1
-    err10-factor: 1.1
-  err+20%:
-    err01-factor: 1.2
-    err10-factor: 1.2
-  err+30%:
-    err01-factor: 1.3
-    err10-factor: 1.3
+  err-5%:
+    err01-factor: 0.95
+    err10-factor: 0.95
+  err-10%:
+    err01-factor: 0.9
+    err10-factor: 0.9
+  err-20%:
+    err01-factor: 0.8
+    err10-factor: 0.8
+  err-30%:
+    err01-factor: 0.7
+    err10-factor: 0.7
 
 plots:
   figsize: [2.4, 2]

@@ -338,9 +338,10 @@ rule plot_error_rate_uncertainty:
     input:
         codebook="codebook/simulated-MHD{dist}.txt",
         known_counts=expand("data/simulated.{mean}.known.txt", mean=means),
+        raw_counts=expand("counts/simulated-MHD{{dist}}.{mean}.all.txt", mean=means),
         **{
             uncertainty: expand("expressions/simulated-MHD{{dist}}.{mean}.all.{settings}.est.txt", mean=means, settings=uncertainty)
-            for uncertainty in ["default", "err+10%", "err+20%", "err+30%"]
+            for uncertainty in ["default", "err-5%", "err-10%", "err-20%", "err-30%"]
         }
     output:
         "results/{context}/simulation-MHD{dist}/MHD{dist}.error-rate-uncertainty.svg"
