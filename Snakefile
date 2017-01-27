@@ -658,22 +658,37 @@ rule figure_clustering:
         "envs/analysis.yml"
     run:
         import svgutils.transform as sg
-        fig = sg.SVGFigure("4.8in", "1.1in")
+        fx, fy = "5.1in", "1.3in"
+        if wildcards.dataset == "1001genesData":
+            fx, fy = "5.5in", "1.3in"
+        fig = sg.SVGFigure(fx, fy)
         a = load_svg(input.a)
         b = load_svg(input.b)
         c = load_svg(input.c)
         d = load_svg(input.d)
-        b.moveto(160, 0)
-        c.moveto(250, 0)
-        d.moveto(340, 0)
+        
+        xb = 170
+        xc = 275
+        xd = 380
+        if wildcards.dataset == "1001genesData":
+            xb = 170
+            xc = 290
+            xd = 405
+
+        b.moveto(xb, 0)
+        c.moveto(xc, 0)
+        d.moveto(xd, 0)
 
         la = label_plot(5,10, "a")
-        lb = label_plot(165,10, "b")
-        lc = label_plot(255,10, "c")
-        ld = label_plot(345,10, "d")
+        lb = label_plot(xb,10, "b")
+        lc = label_plot(xc,10, "c")
+        ld = label_plot(xd,10, "d")
 
         fig.append([a, b, c, d, la, lb, lc, ld])
         fig.save(output[0])
+
+
+
 
 
 ruleorder: figure_multidiffexp > convert_svg

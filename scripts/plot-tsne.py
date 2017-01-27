@@ -33,7 +33,7 @@ embedding.index = exprs.index
 # plot
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
 width, height = snakemake.config["plots"]["figsize"]
-fig = plt.figure(figsize=0.75 * np.array(snakemake.config["plots"]["figsize"]))
+fig = plt.figure(figsize=[0.75 * snakemake.config["plots"]["figsize"][0]] * 2)
 plt.subplot(111, aspect="equal")
 
 for expmnt, codebook in zip(experiments, snakemake.params.codebooks):
@@ -68,4 +68,4 @@ plt.gca().yaxis.set_major_locator(NullLocator())
 if snakemake.wildcards.highlight == "cellsize":
     cb = plt.colorbar(ax)
     cb.set_label("cell size in nm²")
-plt.savefig(snakemake.output[0], bbox_inches="tight")
+plt.savefig(snakemake.output[0])
