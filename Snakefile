@@ -167,7 +167,7 @@ rule expressions:
         "{merfishtools} exp {input.codebook} --p0 {params.ds[err01]} "
         "--p1 {params.ds[err10]} -N {params.ds[N]} -m {params.ds[m]} "
         "--dist {params.ds[dist]} "
-        "--estimate {output.est} -t {threads} "
+        "--estimate {output.est} -t {threads} --print-naive "
         "< {input.data} > {output.pmf}"
 
 
