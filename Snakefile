@@ -366,7 +366,7 @@ rule plot_cv_raw_vs_posterior:
 
 rule plot_naive_vs_map:
     input:
-        "expressions/{dataset}.{experiment}.all.{settings}.est.txt"
+        "expressions/{dataset}.all.{settings}.est.txt"
     output:
         "results/{context}/{dataset}.{settings}.naive-vs-map.svg"
     conda:
@@ -677,7 +677,7 @@ rule figure_clustering:
         b = load_svg(input.b)
         c = load_svg(input.c)
         d = load_svg(input.d)
-        
+
         xb = 170
         xc = 275
         xd = 380
