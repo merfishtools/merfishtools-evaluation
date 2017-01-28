@@ -581,7 +581,7 @@ rule figure_error_rate_uncertainty:
 rule figure_naive_vs_map:
     input:
         a="results/paper/140genesData.default.naive-vs-map-scatter.svg",
-        b="results/paper/140genesData.default.naive-vs-map-hist.svg
+        b="results/paper/140genesData.default.naive-vs-map-hist.svg"
     output:
         "figures/figure_naive_vs_map.svg"
     script:
