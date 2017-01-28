@@ -47,7 +47,8 @@ rule all:
         expand("results/{context}/simulation-MHD4-{m}/MHD4-{m}.error.default.svg", m=[4,6,8], context="paper"),
         #expand("results/{context}/simulation-MHD{dist}.rmse.default.svg", dist=2, context="paper"),
         "figures/fig_model.pdf",
-        "figures/fig_error_rate_uncertainty.pdf"
+        "figures/fig_error_rate_uncertainty.pdf",
+        "figures/figure_naive_vs_map.pdf"
 
 
 #### handling raw data ####
@@ -575,6 +576,17 @@ rule figure_error_rate_uncertainty:
         "figures/fig_error_rate_uncertainty.svg"
     script:
         "scripts/fig-error-rate-uncertainty.py"
+
+
+rule figure_naive_vs_map:
+    input:
+        a="results/paper/140genesData.default.naive-vs-map-scatter.svg",
+        b="results/paper/140genesData.default.naive-vs-map-hist.svg
+    output:
+        "figures/figure_naive_vs_map.svg"
+    script:
+        "scripts/fig-naive-vs-map.py"
+
 
 
 rule figure_example:
