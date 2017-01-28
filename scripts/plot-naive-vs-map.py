@@ -43,8 +43,8 @@ xlim = plt.xlim()
 ylim = plt.ylim()
 
 # helper line
-vmax = max(xlim[1], ylim[1])
-plt.plot([0, vmax], [0, vmax], "k--", linewidth=1, alpha=0.7)
+vmin = min(xlim[1], ylim[1])
+plt.plot([0, vmin], [0, vmin], "k--", linewidth=1, alpha=0.7)
 
 plt.xlabel("exact")
 plt.ylabel("corrected")

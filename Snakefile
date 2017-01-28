@@ -48,7 +48,7 @@ rule all:
         #expand("results/{context}/simulation-MHD{dist}.rmse.default.svg", dist=2, context="paper"),
         "figures/fig_model.pdf",
         "figures/fig_error_rate_uncertainty.pdf",
-        "figures/figure_naive_vs_map.pdf"
+        "results/paper/140genesData.default.naive-vs-map-scatter.pdf"
 
 
 #### handling raw data ####
