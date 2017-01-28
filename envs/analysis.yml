@@ -81,7 +81,7 @@ dependencies:
   - bioconductor-multtest=2.26.0
   - bioconductor-org.hs.eg.db=3.2.3
   - matplotlib=1.5.3
-  #- merfishtools=1.0.0
+  - merfishtools=1.2.0
   - numpy=1.11.0
   - pandas=0.18.1
   - python=3.5.1
