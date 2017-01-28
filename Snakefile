@@ -366,9 +366,11 @@ rule plot_cv_raw_vs_posterior:
 
 rule plot_naive_vs_map:
     input:
-        estimates=lambda wildcards: expand("expressions/{dataset}.{expmnt}.all.{settings}.est.txt", expmnt=experiments(wildcards.dataset), **wildcards)
+        estimates=lambda wildcards: expand("expressions/{dataset}.{expmnt}.all.{settings}.est.txt", expmnt=experiments(wildcards.dataset), **wildcards),
+        counts=lambda wildcards: expand("counts/{dataset}.{expmnt}.all.txt", expmnt=experiments(wildcards.dataset), **wildcards)
     output:
-        "results/{context}/{dataset}.{settings}.naive-vs-map.svg"
+        hist="results/{context}/{dataset}.{settings}.naive-vs-map-hist.svg",
+        scatter="results/{context}/{dataset}.{settings}.naive-vs-map-scatter.svg"
     conda:
         "envs/analysis.yml"
     script:
