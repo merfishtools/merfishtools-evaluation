@@ -366,7 +366,7 @@ rule plot_cv_raw_vs_posterior:
 
 rule plot_naive_vs_map:
     input:
-        "expressions/{dataset}.all.{settings}.est.txt"
+        estimates=lambda wildcards: expand("expressions/{dataset}.{expmnt}.all.{settings}.est.txt", expmnt=experiments(wildcards.dataset), **wildcards)
     output:
         "results/{context}/{dataset}.{settings}.naive-vs-map.svg"
     conda:

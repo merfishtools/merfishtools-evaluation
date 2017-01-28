@@ -6,11 +6,18 @@ import pandas as pd
 import seaborn as sns
 
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
-plt.figure(figsize=[snakemake.config["plots"]["figsize"][1]] * 2)
+fx, fy = snakemake.config["plots"]["figsize"]
+plt.figure(figsize=[fx*2, fy])
+colors = sns.xkcd_palette(["light red"])
 
-estimates = pd.read_table(snakemake.input.estimates, index_col=[0, 1])
-plt.scatter(estimates["expr_map"], estimates["expr_naive"], s=2, c="k", alpha=0.6, edgecolors="face")
+estimates = pd.concat([pd.read_table(f) for f in snakemake.input.estimates])
+diff = estimates["expr_map"] - estimates["expr_naive"]
+hist = diff.value_counts(normalize=True)
+hist = hist.reindex(np.arange(hist.index.min(), hist.index.max(), dtype=np.int64), fill_value=0)
+
+sns.barplot(hist.index, hist, color=colors[0], log=True)
+plt.xlabel("MAP - naive")
+plt.ylabel("fraction")
 sns.despine()
-plt.xlabel("MAP")
-plt.ylabel("naive")
+
 plt.savefig(snakemake.output[0], bbox_inches="tight")
