@@ -364,6 +364,17 @@ rule plot_cv_raw_vs_posterior:
         "scripts/plot-cv-raw-vs-posterior.py"
 
 
+rule plot_naive_vs_map:
+    input:
+        "expressions/{dataset}.{experiment}.all.{settings}.est.txt"
+    output:
+        "results/{context}/{dataset}.{settings}.naive-vs-map.svg"
+    conda:
+        "envs/analysis.yml"
+    script:
+        "scripts/plot-naive-vs-map.py"
+
+
 rule plot_enrichment:
     input:
         terms="results/{dataset}.{settings}.go_enrichment.terms.txt",
