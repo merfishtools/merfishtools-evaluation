@@ -49,7 +49,7 @@ rule all:
         #expand("results/{context}/simulation-MHD{dist}.rmse.default.svg", dist=2, context="paper"),
         "figures/fig_model.pdf",
         "figures/fig_error_rate_uncertainty.pdf",
-        "figures/figure_naive_vs_map.pdf"
+        "results/paper/140genesData.default.naive-vs-map-scatter.pdf"
 
 
 #### handling raw data ####
@@ -341,6 +341,8 @@ rule plot_error_rate_uncertainty:
         "results/{context}/simulation-MHD{dist}/MHD{dist}.error-rate-uncertainty.svg"
     params:
         means=means
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-error-rate-uncertainty.py"
 
@@ -515,6 +517,8 @@ rule plot_m_vs_errors:
         "results/{context}/simulation-MHD{dist}.m-vs-errors.{settings}.svg"
     params:
         ms=[4, 6, 8]
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-m-vs-errors.py"
 
@@ -556,6 +560,8 @@ rule figure_error_rate_uncertainty:
         b="results/paper/simulation-MHD2-8/MHD2-8.error-rate-uncertainty.svg"
     output:
         "figures/fig_error_rate_uncertainty.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/fig-error-rate-uncertainty.py"
 
@@ -566,6 +572,8 @@ rule figure_naive_vs_map:
         b="results/paper/140genesData.default.naive-vs-map-hist.svg"
     output:
         "figures/figure_naive_vs_map.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/fig-naive-vs-map.py"
 
@@ -627,6 +635,8 @@ rule figure_simulation_ci_error:
         d="results/paper/simulation-MHD2-8/MHD2-8.ci-errors.default.svg"
     output:
         "figures/fig_simulation_ci_error.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/fig-ci-error.py"
 
@@ -681,6 +691,8 @@ rule figure_exact_vs_corrected:
         expand("counts/140genesData.{experiment}.all.txt", experiment=experiments("140genesData"))
     output:
         "figures/fig_exact_vs_corrected.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-exact-vs-corrected.py"
 

@@ -81,7 +81,7 @@ dependencies:
   - bioconductor-multtest=2.26.0
   - bioconductor-org.hs.eg.db=3.2.3
   - matplotlib=1.5.3
-  #- merfishtools=1.0.0
+  - merfishtools=1.2.0
   - numpy=1.11.0
   - pandas=0.18.1
   - python=3.5.1
@@ -90,7 +90,6 @@ dependencies:
   - scikit-learn=0.17.1
   - scipy=0.17.0
   - seaborn=0.7.1
-  - snakemake=3.9.*
   - statsmodels=0.6.1
   - svgutils=0.1.0
   - r-mutoss=0.1
