@@ -3,13 +3,14 @@ Analysis of MERFISHtools, using the data published
 at http://zhuang.harvard.edu/merfish.
 """
 
+__author__ = "Johannes Köster"
+__license__ = "MIT"
+
 
 from copy import deepcopy
 
 
 configfile: "config.yaml"
-
-merfishtools = "merfishtools"
 
 contexts = ["paper"]
 datasets = ["140genesData", "1001genesData"]
@@ -165,7 +166,7 @@ rule expressions:
         "envs/analysis.yml"
     threads: 8
     shell:
-        "{merfishtools} exp {input.codebook} --p0 {params.ds[err01]} "
+        "merfishtools exp {input.codebook} --p0 {params.ds[err01]} "
         "--p1 {params.ds[err10]} -N {params.ds[N]} -m {params.ds[m]} "
         "--dist {params.ds[dist]} "
         "--estimate {output.est} -t {threads} --print-naive "
@@ -207,13 +208,8 @@ rule normalize_expression_matrix:
         "normalized_expressions/{dataset}.{experiment}.{group}.{settings}.matrix.txt"
     conda:
         "envs/analysis.yml"
-    run:
-        import pandas as pd
-        expr = pd.read_table(input.expr, index_col=0)
-        scales = pd.read_table(input.scales, index_col=0, squeeze=True, header=None)
-        print(scales)
-        expr *= scales[int(wildcards.experiment)]
-        expr.to_csv(output[0], sep="\t")
+    script:
+        "scripts/normalize-matrix.py"
 
 
 rule normalize_cdf:
@@ -224,12 +220,8 @@ rule normalize_cdf:
         "normalized_expressions/{dataset}.{experiment}.{group}.{settings,(default)}.txt"
     conda:
         "envs/analysis.yml"
-    run:
-        import pandas as pd
-        cdf = pd.read_table(input.cdf, index_col=0)
-        scales = pd.read_table(input.scales, index_col=0, squeeze=True, header=None)
-        cdf["expr"] *= scales[int(wildcards.experiment)]
-        cdf.to_csv(output[0], sep="\t")
+    script:
+        "scripts/normalize-cdf.py"
 
 
 #### differential expression analysis ####
@@ -253,7 +245,7 @@ rule diffexp:
         "envs/analysis.yml"
     threads: 8
     shell:
-        "{merfishtools} diffexp -t {threads} --pseudocounts 1 "
+        "merfishtools diffexp -t {threads} --pseudocounts 1 "
         "--max-null-log2fc 1.0 --cdf {output.cdf} {input} "
         "> {output.est}"
 
@@ -278,7 +270,7 @@ rule multidiffexp:
         "envs/analysis.yml"
     threads: 24
     shell:
-        "{merfishtools} multidiffexp --pseudocounts 1 "
+        "merfishtools multidiffexp --pseudocounts 1 "
         "-t {threads} --max-null-cv 0.5 "
         "--cdf {output.cdf} {input} > {output.est}"
 
@@ -558,16 +550,6 @@ rule plot_dataset_correlation:
 #### figures ####
 
 
-def load_svg(path):
-    import svgutils.transform as sg
-    return sg.fromfile(path).getroot()
-
-
-def label_plot(x, y, label):
-    import svgutils.transform as sg
-    return sg.TextElement(x, y, label, size=12, weight="bold")
-
-
 rule figure_error_rate_uncertainty:
     input:
         a="results/paper/simulation-MHD4/MHD4.error-rate-uncertainty.svg",
@@ -601,30 +583,8 @@ rule figure_example:
         "figures/fig_example.svg"
     conda:
         "envs/analysis.yml"
-    run:
-        import svgutils.transform as sg
-        fig = sg.SVGFigure("6.4in", "3.6in")
-        a = load_svg(input.a)
-        b = load_svg(input.b)
-        c = load_svg(input.c)
-        d = load_svg(input.d)
-        e = load_svg(input.e)
-        f = load_svg(input.f)
-        b.moveto(190, 0)
-        c.moveto(380, 0)
-        d.moveto(0, 160)
-        e.moveto(190, 160)
-        f.moveto(380, 160)
-
-        la = label_plot(5,10, "a")
-        lb = label_plot(195,10, "b")
-        lc = label_plot(385,10, "c")
-        ld = label_plot(5,170, "d")
-        le = label_plot(195,170, "e")
-        lf = label_plot(385,170, "f")
-
-        fig.append([a, b, c, d, e, f, la, lb, lc, ld, le, lf])
-        fig.save(output[0])
+    script:
+        "scripts/fig-example.py"
 
 
 rule figure_simulation:
@@ -681,39 +641,8 @@ rule figure_clustering:
         "figures/fig_{dataset}.{type}.clustering.svg"
     conda:
         "envs/analysis.yml"
-    run:
-        import svgutils.transform as sg
-        fx, fy = "5.1in", "1.3in"
-        if wildcards.dataset == "1001genesData":
-            fx, fy = "5.5in", "1.3in"
-        fig = sg.SVGFigure(fx, fy)
-        a = load_svg(input.a)
-        b = load_svg(input.b)
-        c = load_svg(input.c)
-        d = load_svg(input.d)
-
-        xb = 170
-        xc = 275
-        xd = 380
-        if wildcards.dataset == "1001genesData":
-            xb = 170
-            xc = 290
-            xd = 405
-
-        b.moveto(xb, 0)
-        c.moveto(xc, 0)
-        d.moveto(xd, 0)
-
-        la = label_plot(5,10, "a")
-        lb = label_plot(xb,10, "b")
-        lc = label_plot(xc,10, "c")
-        ld = label_plot(xd,10, "d")
-
-        fig.append([a, b, c, d, la, lb, lc, ld])
-        fig.save(output[0])
-
-
-
+    script:
+        "scripts/fig-clustering.py"
 
 
 ruleorder: figure_multidiffexp > convert_svg
@@ -731,7 +660,6 @@ rule figure_multidiffexp:
         "cp {input} {output}"
 
 
-
 def get_cv_raw_vs_posterior_input(dataset):
     return expand("results/paper/{dataset}.default.cv_raw_vs_posterior.{estimate}.svg", dataset=dataset, estimate=["cv_ev", "cv_ci_lower"])
 
@@ -744,24 +672,8 @@ rule figure_cv_raw_vs_posterior:
         "figures/fig_cv_raw_vs_posterior.svg"
     conda:
         "envs/analysis.yml"
-    run:
-        import svgutils.transform as sg
-        fig = sg.SVGFigure("7.5in", "1.9in")
-        a = load_svg(input.mhd4[0])
-        b = load_svg(input.mhd4[1])
-        c = load_svg(input.mhd2[0])
-        d = load_svg(input.mhd2[1])
-        b.moveto(170, 0)
-        c.moveto(340, 0)
-        d.moveto(510, 0)
-
-        la = label_plot(5, 10, "a")
-        lb = label_plot(175, 10, "b")
-        lc = label_plot(345, 10, "c")
-        ld = label_plot(515, 10, "d")
-
-        fig.append([a, b, c, d, la, lb, lc, ld])
-        fig.save(output[0])
+    script:
+        "scripts/fig-cv-raw-vs-posterior.py"
 
 
 rule figure_exact_vs_corrected:
@@ -782,26 +694,8 @@ rule figure_model:
         "figures/fig_model.svg"
     conda:
         "envs/analysis.yml"
-    run:
-        import svgutils.transform as sg
-        fig = sg.SVGFigure("7.7in", "3.6in")
-        a = load_svg(input[0])
-        b = load_svg(input[1])
-        c = load_svg(input[2])
-        d = load_svg(input[3])
-        a.moveto(10, 10, scale=0.6)
-        b.moveto(20, 130, scale=0.36)
-        c.moveto(40, 190, scale=0.6)
-        d.moveto(230, 10, scale=0.8)
-
-
-        la = label_plot(5, 10, "a")
-        lb = label_plot(5, 130, "b")
-        lc = label_plot(5, 190, "c")
-        ld = label_plot(215, 10, "d")
-
-        fig.append([a, b, c, d, la, lb, lc, ld])
-        fig.save(output[0])
+    script:
+        "scripts/fig-model.py"
 
 
 #### utils ####
