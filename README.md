@@ -1,7 +1,7 @@
 # Evaluation of MERFISHtools
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥3.10.1-brightgreen.svg)](http://snakemake.bitbucket.org)
-[![DOI](https://zenodo.org/badge/57039360.svg)](https://zenodo.org/badge/latestdoi/57039360)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.264016.svg)](https://doi.org/10.5281/zenodo.264016)
 
 This Snakemake workflow generates the entire analysis of the forthcoming manuscript
 "A Bayesian model for single cell transcript expression analysis on MERFISH data".
