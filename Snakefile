@@ -7,6 +7,9 @@ __author__ = "Johannes Köster"
 __license__ = "MIT"
 
 
+from snakemake.utils import min_version
+min_version("3.10.1")
+
 from copy import deepcopy
 
 
