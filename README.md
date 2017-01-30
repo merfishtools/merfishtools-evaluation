@@ -8,7 +8,7 @@ This Snakemake workflow generates the entire analysis of the forthcoming manuscr
 
 ## Requirements
 
-* Any 64-bit Linux installation with GLIBC 2.5 or newer (i.e. any Linux distribution that is newer than CentOS 6).
+* Any 64-bit Linux installation with [GLIBC 2.5](http://unix.stackexchange.com/a/120381) or newer (i.e. any Linux distribution that is newer than CentOS 6).
 
 ## Setup
 
