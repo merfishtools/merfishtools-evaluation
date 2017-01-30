@@ -15,18 +15,20 @@ This Snakemake workflow generates the entire analysis of the forthcoming manuscr
 ### Step 1: Setup Snakemake
 
 To run this workflow, you need to
-[setup Snakemake via the Conda package manager](http://snakemake.readthedocs.io/en/latest/getting_started/installation.html).
+[setup Snakemake via the Conda package manager](http://snakemake.readthedocs.io/en/latest/getting_started/installation.html#installation-via-conda).
 This does not require admin priviledges.
 
 ### Step 2: Download the workflow
 
-To download this workflow, clone the git repository into a suitable working directory
+First, create a working directory:
 
-    git clone https://github.com/merfishtools/merfishtools-evaluation.git
-
-Then, change to the created directory
-
+    mkdir merfishtools-evaluation
     cd merfishtools-evaluation
+
+Then, download the workflow archive from https://doi.org/10.5281/zenodo.264016.
+Finally, extract the downloaded archive with
+
+    tar -xf merfishtools-evaluation.tar.bz2
 
 ### Step 4: Run the workflow
 
