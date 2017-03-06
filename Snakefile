@@ -53,7 +53,7 @@ rule all:
         "figures/fig_model.pdf",
         "figures/fig_error_rate_uncertainty.pdf",
         "results/paper/140genesData.default.naive-vs-map-scatter.pdf",
-        expand("results/{context}/codebook-graphs/{dataset}.{experiment}.cell{cell}.count-codebook-graph.svg",
+        expand("results/{context}/codebook-graphs/{dataset}.{experiment}.cell{cell}.default.count-codebook-graph.svg",
                context="paper",
                dataset="140genesData",
                experiment=experiments("140genesData"),
@@ -562,13 +562,15 @@ rule plot_dataset_correlation:
 rule plot_codebook_graph:
     input:
         codebook=get_codebook,
-        exprs="{dataset}.{experiment}.all.{settings}.est.txt",
+        exprs="expressions/{dataset}.{experiment}.all.{settings}.est.txt",
         counts="counts/{dataset}.{experiment}.all.txt"
     output:
-        counts="results/{context}/codebook-graphs/{dataset}.{experiment}.cell{cell}.count-codebook-graph.svg",
-        exprs="results/{context}/codebook-graphs/{dataset}.{experiment}.cell{cell}.exprs-codebook-graph.svg"
+        counts="results/{context}/codebook-graphs/{dataset}.{experiment}.cell{cell}.{settings}.count-codebook-graph.svg",
+        exprs="results/{context}/codebook-graphs/{dataset}.{experiment}.cell{cell}.{settings}.exprs-codebook-graph.svg"
+    conda:
+        "envs/analysis.yml"
     script:
-        "plot-codebook-graph.py"
+        "scripts/plot-codebook-graph.py"
 
 
 #### figures ####
