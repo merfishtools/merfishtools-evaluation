@@ -4,3 +4,6 @@
 !environment.yml
 !config.yaml
 !scripts
+!scripts/*
+!envs
+!envs/*.yaml
