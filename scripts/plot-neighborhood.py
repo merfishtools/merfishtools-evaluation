@@ -19,6 +19,7 @@ cell = int(snakemake.wildcards.cell)
 
 counts = pd.read_table(snakemake.input.counts, index_col=[0, 1]).loc[cell]
 counts = counts["corrected"] + counts["exact"]
+counts = counts.reindex(codebook.index)
 codeword = codebook[snakemake.wildcards.feature]
 dist = [hamming_distance(codeword, codebook[feat]) for feat in counts.index]
 counts = pd.DataFrame({"feat": counts.index, "count": counts, "dist": dist})
