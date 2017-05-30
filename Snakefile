@@ -53,11 +53,12 @@ rule all:
         "figures/fig_model.pdf",
         "figures/fig_error_rate_uncertainty.pdf",
         "results/paper/140genesData.default.naive-vs-map-scatter.pdf",
-        expand("results/{context}/codebook-graphs/{dataset}.{experiment}.cell{cell}.default.count-codebook-graph.svg",
+        expand("results/{context}/neighborhoods/{dataset}.{experiment}.cell{cell}.{feature}.default.neighborhood.svg",
                context="paper",
                dataset="140genesData",
                experiment=experiments("140genesData"),
-               cell=range(25))
+               cell=range(25),
+               feature=["THBS1"])
 
 
 #### handling raw data ####
@@ -559,18 +560,17 @@ rule plot_dataset_correlation:
         "scripts/plot-dataset-correlation.py"
 
 
-rule plot_codebook_graph:
+rule plot_neighborhood:
     input:
         codebook=get_codebook,
         exprs="expressions/{dataset}.{experiment}.all.{settings}.est.txt",
         counts="counts/{dataset}.{experiment}.all.txt"
     output:
-        counts="results/{context}/codebook-graphs/{dataset}.{experiment}.cell{cell}.{settings}.count-codebook-graph.svg",
-        exprs="results/{context}/codebook-graphs/{dataset}.{experiment}.cell{cell}.{settings}.exprs-codebook-graph.svg"
+        "results/{context}/neighborhoods/{dataset}.{experiment}.cell{cell}.{feature}.{settings}.neighborhood.svg",
     conda:
         "envs/analysis.yml"
     script:
-        "scripts/plot-codebook-graph.py"
+        "scripts/plot-neighborhood.py"
 
 
 #### figures ####
