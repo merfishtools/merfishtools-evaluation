@@ -19,23 +19,12 @@ cell = int(snakemake.wildcards.cell)
 
 counts = pd.read_table(snakemake.input.counts, index_col=[0, 1]).loc[cell]
 counts = counts["corrected"] + counts["exact"]
-
-exprs = pd.read_table(snakemake.input.exprs, index_col=[0, 1])["expr_map"].loc[cell]
-counts = counts.reindex(exprs.index, fill_value=0)
-
-data = pd.DataFrame({"counts": counts, "exprs": exprs})
+codeword = codebook[snakemake.wildcards.feature]
+dist = [hamming_distance(codeword, codebook[feat]) for feat in counts.index]
+counts = pd.DataFrame({"feat": counts.index, "count": counts, "dist": dist})
 
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
-plt.subplot(111, aspect="equal")
-sns.stripplot(x=data=data
-plt.scatter(counts, exprs, c="k", edgecolors="face", rasterized=True, alpha=0.5)
-
-# plot neighborhood
-codeword = codebook[snakemake.wildcards.feature]
-neighbors = [feat for feat, w in codebook.iteritems() if hamming_distance(codeword, w)]
-
-plt.scatter(counts[neighbors], exprs[neighbors], edgecolors="face", c="r")
-plt.scatter(counts[snakemake.wildcards.feature], exprs[snakemake.wildcards.feature], edgecolors="face", c="r", s=2)
+sns.stripplot(x="feat", y="count", hue="dist", data=counts)
 
 sns.despine()
 plt.savefig(snakemake.output[0], bbox_inches="tight")

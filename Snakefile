@@ -563,7 +563,6 @@ rule plot_dataset_correlation:
 rule plot_neighborhood:
     input:
         codebook=get_codebook,
-        exprs="expressions/{dataset}.{experiment}.all.{settings}.est.txt",
         counts="counts/{dataset}.{experiment}.all.txt"
     output:
         "results/{context}/neighborhoods/{dataset}.{experiment}.cell{cell}.{feature}.{settings}.neighborhood.svg",
