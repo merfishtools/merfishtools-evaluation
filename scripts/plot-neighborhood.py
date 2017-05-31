@@ -10,22 +10,29 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def hamming_distance(a, b):
-    return sum(x == y for x, y in zip(a, b))
+    return sum(x != y for x, y in zip(a, b))
 
 # read data
 codebook = pd.read_table(snakemake.input.codebook, index_col=0, dtype=np.dtype(str))["codeword"]
 
-cell = int(snakemake.wildcards.cell)
-
-counts = pd.read_table(snakemake.input.counts, index_col=[0, 1]).loc[cell]
-counts = counts["corrected"] + counts["exact"]
-counts = counts.reindex(codebook.index)
+if snakemake.wildcards.pred == "raw":
+    counts = pd.read_table(snakemake.input.counts, index_col=1)
+    counts["total"] = counts["corrected"] + counts["exact"]
+else:
+    counts = pd.read_table(snakemake.input.exprs, index_col=1)
+    counts["total"] = counts["expr_map"]
+counts = counts.loc[codebook.index]
+counts = counts.reset_index()
 codeword = codebook[snakemake.wildcards.feature]
-dist = [hamming_distance(codeword, codebook[feat]) for feat in counts.index]
-counts = pd.DataFrame({"feat": counts.index, "count": counts, "dist": dist})
+counts["dist"] = [hamming_distance(codeword, codebook[feat]) for feat in counts["feat"]]
 
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
-sns.stripplot(x="feat", y="count", hue="dist", data=counts)
+sns.stripplot(x="feat", y="total", hue="dist", data=counts, rasterized=True, color="red", size=2)
+plt.xticks([])
+plt.ylim((0, 500))
+plt.legend().set_title("hamming distance to {}".format(snakemake.wildcards.feature))
+plt.ylabel("raw counts")
+plt.xlabel("genes")
 
-sns.despine()
+sns.despine(offset=5)
 plt.savefig(snakemake.output[0], bbox_inches="tight")

@@ -53,12 +53,12 @@ rule all:
         "figures/fig_model.pdf",
         "figures/fig_error_rate_uncertainty.pdf",
         "results/paper/140genesData.default.naive-vs-map-scatter.pdf",
-        expand("results/{context}/neighborhoods/{dataset}.{experiment}.cell{cell}.{feature}.default.neighborhood.svg",
+        expand("results/{context}/neighborhoods/{dataset}.{experiment}.{feature}.default.{pred}.neighborhood.svg",
                context="paper",
                dataset="140genesData",
                experiment=experiments("140genesData"),
-               cell=range(25),
-               feature=["THBS1"])
+               feature=["THBS1"],
+               pred=["raw", "posterior"])
 
 
 #### handling raw data ####
@@ -563,11 +563,14 @@ rule plot_dataset_correlation:
 rule plot_neighborhood:
     input:
         codebook=get_codebook,
-        counts="counts/{dataset}.{experiment}.all.txt"
+        counts="counts/{dataset}.{experiment}.all.txt",
+        exprs="expressions/{dataset}.{experiment}.all.{settings}.est.txt"
     output:
-        "results/{context}/neighborhoods/{dataset}.{experiment}.cell{cell}.{feature}.{settings}.neighborhood.svg",
+        "results/{context}/neighborhoods/{dataset}.{experiment}.{feature}.{settings}.{pred}.neighborhood.svg",
     conda:
         "envs/analysis.yml"
+    wildcard_constraints:
+        pred="(raw|posterior)"
     script:
         "scripts/plot-neighborhood.py"
 
