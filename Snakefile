@@ -176,8 +176,7 @@ rule expressions:
     threads: 8
     shell:
         "merfishtools exp {input.codebook} --p0 {params.ds[err01]} "
-        "--p1 {params.ds[err10]} -N {params.ds[N]} -m {params.ds[m]} "
-        "--dist {params.ds[dist]} "
+        "--p1 {params.ds[err10]} "
         "--estimate {output.est} -t {threads} --print-naive "
         "< {input.data} > {output.pmf}"
 
@@ -695,7 +694,7 @@ rule figure_multidiffexp:
 
 
 def get_cv_raw_vs_posterior_input(dataset):
-    return expand("results/paper/{dataset}.default.cv_raw_vs_posterior.{estimate}.svg", dataset=dataset, estimate=["cv_ev", "cv_ci_lower"])
+    return expand("results/paper/{dataset}.default.cv_raw_vs_posterior.{estimate}.svg", dataset=dataset, estimate=["cv_map", "cv_ci_lower"])
 
 
 rule figure_cv_raw_vs_posterior:

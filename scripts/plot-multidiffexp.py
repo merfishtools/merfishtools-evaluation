@@ -19,7 +19,7 @@ exprs = [pd.read_table(f, index_col=0).stack(0) for f in snakemake.input.exprs]
 exprs = pd.concat(exprs, keys=snakemake.params.expmnts)
 
 diffexp = merfishtools.read_diffexp_estimates(snakemake.input.diffexp)
-diffexp.sort_values("cv_ev", inplace=True)
+diffexp.sort_values("cv_map", inplace=True)
 
 cdfs = merfishtools.read_cdf(snakemake.input.diffexp_cdf)
 
@@ -47,7 +47,7 @@ if not significant.empty:
         cdf = cdfs.loc[gene]
         est = significant.loc[gene]
         
-        merfishtools.plot_cdf(cdf, expected_value=est["cv_ev"], credible_interval=est[["cv_ci_lower", "cv_ci_upper"]], legend=False)
+        merfishtools.plot_cdf(cdf, map_value=est["cv_map"], credible_interval=est[["cv_ci_lower", "cv_ci_upper"]], legend=False)
         
         plt.setp(cdf_ax.get_xticklabels(), rotation=45, ha="right")
         cdf_ax.tick_params(pad=1)

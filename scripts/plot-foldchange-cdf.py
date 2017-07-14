@@ -14,7 +14,7 @@ plt.figure(figsize=snakemake.config["plots"]["figsize"])
 cdf = merfishtools.read_cdf(snakemake.input.fc).loc[snakemake.wildcards.gene]
 est = merfishtools.read_diffexp_estimates(snakemake.input.fc_est).loc[snakemake.wildcards.gene]
 
-merfishtools.plot_cdf(cdf, expected_value=est["log2fc_ev"], credible_interval=est[["log2fc_ci_lower", "log2fc_ci_upper"]], legend=snakemake.wildcards.legend == "legend")
+merfishtools.plot_cdf(cdf, map_value=est["log2fc_map"], credible_interval=est[["log2fc_ci_lower", "log2fc_ci_upper"]], legend=snakemake.wildcards.legend == "legend")
 
 plt.xlabel("log2 fold change")
 plt.ylabel("CDF")

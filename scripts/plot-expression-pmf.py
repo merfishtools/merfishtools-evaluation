@@ -23,7 +23,7 @@ count_corrected = raw_counts["corrected"]
 count_total = count_exact + count_corrected
 merfishtools.plot_pmf(
     cdf,
-    expected_value=est["expr_ev"],
+    map_value=est["expr_map"],
     credible_interval=est[["expr_ci_lower", "expr_ci_upper"]],
     legend=False)
 
