@@ -9,9 +9,9 @@ __license__ = "MIT"
 
 from snakemake.utils import min_version
 min_version("3.10.1")
+shell.executable("bash")
 
 from copy import deepcopy
-
 
 configfile: "config.yaml"
 
@@ -155,8 +155,9 @@ def get_codebook(wildcards):
 def get_expressions_params(wildcards):
     ds = deepcopy(config["datasets"][wildcards.dataset])
     settings = config["settings"][wildcards.settings]
-    ds["err01"] *= settings["err01-factor"]
-    ds["err10"] *= settings["err10-factor"]
+    err = config["error-rates"][get_codebook(wildcards)]
+    ds["err01"] = [p * settings["err01-factor"] for p in err["err01"]]
+    ds["err10"] = [p * settings["err10-factor"] for p in err["err10"]]
     return ds
 
 
