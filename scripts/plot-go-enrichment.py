@@ -27,9 +27,11 @@ annot.sort_index(axis=1, inplace=True)
 print(annot)
 significant = annot <= 0.05
 annot[significant] = "•"
+isna = annot.isnull()
 annot = annot.fillna(" ")
 print(annot)
-annot[~significant] = " "
+annot = annot.where(significant | isna, other=" ")
+print(annot)
 
 plt.figure(figsize=(3,2))
 sns.heatmap(matrix, cmap=plt.cm.Reds, annot=annot, fmt="s", cbar_kws={"label": "CV"})

@@ -126,23 +126,23 @@ error-rates:
     err01: [0.04]
     err10: [0.1]
   codebook/simulated-MHD4-4.txt:
-    err01: [0.04]
-    err10: [0.1]
+    err01: [0.005]
+    err10: [0.01]
   codebook/simulated-MHD4-6.txt:
-    err01: [0.04]
-    err10: [0.1]
+    err01: [0.005]
+    err10: [0.01]
   codebook/simulated-MHD4-8.txt:
-    err01: [0.04]
-    err10: [0.1]
+    err01: [0.005]
+    err10: [0.01]
   codebook/simulated-MHD2-4.txt:
-    err01: [0.04]
-    err10: [0.1]
+    err01: [0.005]
+    err10: [0.01]
   codebook/simulated-MHD2-6.txt:
-    err01: [0.04]
-    err10: [0.1]
+    err01: [0.005]
+    err10: [0.01]
   codebook/simulated-MHD2-8.txt:
-    err01: [0.04]
-    err10: [0.1]
+    err01: [0.005]
+    err10: [0.01]
 
 settings:
   default:

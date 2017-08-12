@@ -52,12 +52,18 @@ rule all:
         #expand("results/{context}/simulation-MHD{dist}.rmse.default.svg", dist=2, context="paper"),
         "figures/fig_model.pdf",
         "figures/fig_error_rate_uncertainty.pdf",
-        "results/paper/140genesData.default.naive-vs-map-scatter.pdf",
+        # "results/paper/140genesData.default.naive-vs-map-scatter.pdf",
         expand("results/{context}/neighborhoods/{dataset}.{experiment}.{feature}.default.{pred}.neighborhood.svg",
                context="paper",
                dataset="140genesData",
                experiment=experiments("140genesData"),
                feature=["THBS1"],
+               pred=["raw", "posterior"]),
+        expand("results/{context}/neighborhoods/simulated-MHD{dist}.{mean}.{feature}.default.{pred}.neighborhood.svg", 
+               mean=means,
+               context="paper",
+               dist=["2", "4", "2-8", "4-4"],
+               feature="maxexpr",
                pred=["raw", "posterior"])
 
 
@@ -178,7 +184,7 @@ rule expressions:
     shell:
         "merfishtools exp {input.codebook} --p0 {params.ds[err01]} "
         "--p1 {params.ds[err10]} "
-        "--estimate {output.est} -t {threads} --print-naive "
+        "--estimate {output.est} -t {threads} "
         "< {input.data} > {output.pmf}"
 
 

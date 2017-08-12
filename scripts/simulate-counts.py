@@ -18,4 +18,6 @@ with open(snakemake.output[0], "w") as known_out:
     for cell in range(snakemake.params.cell_count):
         random_counts = np.random.poisson(int(snakemake.wildcards.mean), len(genes))
         for gene, count in zip(genes, random_counts):
+            if gene == "PTPN14":  # PTPN14 occurs in all codebooks.
+                count = np.random.poisson(int(snakemake.wildcards.mean) * 100)
             known_out.writerow([cell, gene, gene in codebook_mhd2.index, gene in codebook_mhd4.index, count])

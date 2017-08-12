@@ -12,6 +12,7 @@ import seaborn as sns
 def hamming_distance(a, b):
     return sum(x != y for x, y in zip(a, b))
 
+
 # read data
 codebook = pd.read_table(snakemake.input.codebook, index_col=0, dtype=np.dtype(str))["codeword"]
 
@@ -23,14 +24,21 @@ else:
     counts["total"] = counts["expr_map"]
 counts = counts.loc[codebook.index]
 counts = counts.reset_index()
-codeword = codebook[snakemake.wildcards.feature]
+
+feature = snakemake.wildcards.feature
+if feature == "maxexpr":
+    feature = counts["feat"][counts["total"].argmax()]
+
+codeword = codebook[feature]
 counts["dist"] = [hamming_distance(codeword, codebook[feat]) for feat in counts["feat"]]
+
+counts.sort_values("dist", inplace=True)
 
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
 sns.stripplot(x="feat", y="total", hue="dist", data=counts, rasterized=True, color="red", size=2)
 plt.xticks([])
 plt.ylim((0, 500))
-plt.legend().set_title("hamming distance to {}".format(snakemake.wildcards.feature))
+plt.legend().set_title("hamming distance to {}".format(feature))
 plt.ylabel("raw counts")
 plt.xlabel("genes")
 
