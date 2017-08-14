@@ -9,9 +9,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="75.960648mm"
+   width="79.347145mm"
    height="54.77042mm"
-   viewBox="0 0 269.1519 194.06843"
+   viewBox="0 0 281.1513 194.06843"
    id="svg2"
    version="1.1"
    inkscape:version="0.92+devel unknown"
@@ -58,8 +58,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2"
-     inkscape:cx="151.42756"
-     inkscape:cy="-4.25348"
+     inkscape:cx="137.42756"
+     inkscape:cy="155.74653"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -76,12 +76,12 @@
      inkscape:guide-bbox="true"
      inkscape:document-rotation="0">
     <sodipodi:guide
-       position="213.81426,74.030739"
+       position="221.31427,74.030747"
        orientation="1,0"
        id="guide3469"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="155.90799,47.28073"
+       position="163.40799,47.280737"
        orientation="1,0"
        id="guide4539"
        inkscape:locked="false" />
@@ -102,7 +102,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-11.147837,-9.7765808)">
+     transform="translate(-3.6478367,-9.7765808)">
     <g
        id="g4180"
        transform="translate(-60)">
@@ -171,18 +171,18 @@
          id="tspan4152"
          x="74.285721"
          y="124.50507"
-         style="font-size:15.625px;line-height:1.25">exact call</tspan></text>
+         style="font-size:15.625px;line-height:1.25">exact calls</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#63c763;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="10.285715"
+       x="2.7857151"
        y="21.790783"
        id="text4154"><tspan
          sodipodi:role="line"
          id="tspan4156"
-         x="10.285715"
+         x="2.7857151"
          y="21.790783"
-         style="font-size:15.625px;line-height:1.25">corrected call</tspan></text>
+         style="font-size:15.625px;line-height:1.25">corrected calls</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -204,7 +204,7 @@
          id="tspan4164"
          x="127.14287"
          y="21.647919"
-         style="font-size:15.625px;line-height:1.25;fill:#ff6600">exact miscall</tspan></text>
+         style="font-size:15.625px;line-height:1.25;fill:#ff6600">exact miscalls</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ff9955;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -215,7 +215,7 @@
          id="tspan4168"
          x="143.57143"
          y="39.505058"
-         style="font-size:15.625px;line-height:1.25;fill:#ff9955">corrected miscall</tspan></text>
+         style="font-size:15.625px;line-height:1.25;fill:#ff9955">corrected miscalls</tspan></text>
     <g
        id="g4418"
        transform="matrix(0.87754403,0,0,0.87754403,56.982719,2.8051457)">
@@ -387,7 +387,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans';fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.9375px"
          y="151.15315"
          x="13.250045"
-         sodipodi:role="line">                </tspan><tspan
+         sodipodi:role="line" /><tspan
          id="tspan4382"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans';fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.9375px"
          y="151.71468"
