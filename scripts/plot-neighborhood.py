@@ -43,4 +43,22 @@ plt.ylabel("raw counts")
 plt.xlabel("genes")
 
 sns.despine(offset=5)
-plt.savefig(snakemake.output[0], bbox_inches="tight")
+plt.savefig(snakemake.output.strip, bbox_inches="tight")
+
+
+plt.figure()
+dist = 2 if 2 in counts["dist"].values else 4
+for _, d in counts[counts["dist"] != dist].groupby("cell"):
+    sns.kdeplot(np.log10(d["total"]), color="k", label=None, legend=False, linewidth=1, alpha=0.5)
+for _, d in counts[counts["dist"] == dist].groupby("cell"):
+    sns.kdeplot(np.log10(d["total"]), color="r", label=None, legend=False, linewidth=1, alpha=0.5)
+
+if snakemake.wildcards.pred == "raw":
+    plt.xlabel("log10 raw counts")
+else:
+    plt.xlabel("log10 posterior expression")
+
+plt.ylabel("density")
+sns.despine()
+
+plt.savefig(snakemake.output.kde, bbox_inches="tight")

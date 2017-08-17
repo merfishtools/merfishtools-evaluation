@@ -572,7 +572,8 @@ rule plot_neighborhood:
         counts="counts/{dataset}.{experiment}.all.txt",
         exprs="expressions/{dataset}.{experiment}.all.{settings}.est.txt"
     output:
-        "results/{context}/neighborhoods/{dataset}.{experiment}.{feature}.{settings}.{pred}.neighborhood.svg",
+        strip="results/{context}/neighborhoods/{dataset}.{experiment}.{feature}.{settings}.{pred}.neighborhood.svg",
+        kde="results/{context}/neighborhoods/{dataset}.{experiment}.{feature}.{settings}.{pred}.neighborhood.kde.svg",
     conda:
         "envs/analysis.yml"
     wildcard_constraints:
