@@ -31,7 +31,9 @@ def hamming1_env(word):
         yield w
 
 
-codebook = pd.read_table(snakemake.input.codebook, index_col=0, dtype=np.dtype(str))["codeword"].apply(bitarray)
+codebook = pd.read_table(snakemake.input.codebook, index_col=0, dtype=np.dtype(str))
+codebook["codeword"] = codebook["codeword"].apply(bitarray)
+codebook["expressed"] = codebook["expressed"] == "1"
 
 
 for gene, a in codebook.items():
@@ -42,9 +44,9 @@ known_counts = pd.read_table(snakemake.input.known_counts, index_col=[0, 1])
 
 
 def simulate(codebook, counts_path, stats_path, has_corrected=True):
-    lookup_exact = {word.tobytes(): gene for gene, word in codebook.items()}
+    lookup_exact = {word.tobytes(): gene for gene, word, _ in codebook.itertuples()}
     if has_corrected:
-        lookup_corrected = {w.tobytes(): gene for gene, word in codebook.items() for w in hamming1_env(word)}
+        lookup_corrected = {w.tobytes(): gene for gene, word, _ in codebook.itertuples() for w in hamming1_env(word)}
     else:
         lookup_corrected = {}
 
@@ -59,7 +61,11 @@ def simulate(codebook, counts_path, stats_path, has_corrected=True):
             genes = []
             errors = []
 
-            for gene, word in codebook.items():
+            for gene, word, expressed in codebook.itertuples():
+                if not expressed:
+                    # Skip entries that are marked as not expressed in the codebook.
+                    # These can act as misidentification probes.
+                    continue
                 count = known_counts.loc[cell, gene]["count"]
                 for _ in range(count):
                     readout, errs = sim_errors(word)

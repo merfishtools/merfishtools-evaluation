@@ -7,3 +7,5 @@
 !scripts/*
 !envs
 !envs/*.yaml
+!codebook
+!codebook/*.txt
