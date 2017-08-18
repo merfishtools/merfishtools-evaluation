@@ -59,7 +59,7 @@ rule all:
                experiment=experiments("140genesData"),
                feature=["THBS1"],
                pred=["raw", "posterior"]),
-        expand("results/{context}/neighborhoods/simulated-MHD{dist}.{mean}.{feature}.default.{pred}.neighborhood.svg", 
+        expand("results/{context}/neighborhoods/simulated-MHD{dist}.{mean}.{feature}.default.{pred}.neighborhood.svg",
                mean=means,
                context="paper",
                dist=["2", "4", "2-8", "4-4"],
@@ -95,6 +95,7 @@ rule generate_mhd2_codebook:
     shell:
         "cut -f1 {input.template} | tail -n+2 | merfishtools gen-mhd2 "
         "-N {params.ds[N]} -m {params.ds[m]} "
+        "--not-expressed '(notarget|blank).+' "
         "> {output}"
 
 
@@ -111,7 +112,7 @@ rule generate_mhd4_codebook:
         "envs/analysis.yml"
     shell:
         "cut -f1 {input.template} | tail -n+2 | merfishtools gen-mhd4 "
-        "-m {params.ds[m]} "
+        "-m {params.ds[m]} --not-expressed '(notarget|blank).+' "
         "> {output}"
 
 
