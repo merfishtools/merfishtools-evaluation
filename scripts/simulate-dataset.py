@@ -36,13 +36,7 @@ codebook["codeword"] = codebook["codeword"].apply(bitarray)
 codebook["expressed"] = codebook["expressed"] == "1"
 noise_word = bitarray("0" * len(codebook["codeword"].iloc[0]))
 
-
-for gene, a in codebook.items():
-    neighbors = sum((a ^ b).count(True) == 4 for _, b in codebook.items())
-
-
 known_counts = pd.read_table(snakemake.input.known_counts, index_col=[0, 1])
-
 
 def simulate(codebook, counts_path, stats_path, has_corrected=True):
     lookup_exact = {word.tobytes(): gene for gene, word, _ in codebook.itertuples()}
