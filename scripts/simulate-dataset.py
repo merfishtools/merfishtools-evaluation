@@ -34,6 +34,7 @@ def hamming1_env(word):
 codebook = pd.read_table(snakemake.input.codebook, index_col=0, dtype=np.dtype(str))
 codebook["codeword"] = codebook["codeword"].apply(bitarray)
 codebook["expressed"] = codebook["expressed"] == "1"
+noise_word = bitarray("0" * len(codebook["codeword"].iloc[0]))
 
 
 for gene, a in codebook.items():
@@ -73,6 +74,16 @@ def simulate(codebook, counts_path, stats_path, has_corrected=True):
                     readouts.append(readout)
                     words.append(word)
                     genes.append(gene)
+
+            # add noise (real data shows a rate similar to the total
+            # amount of expression)
+            noise_rate = known_counts.loc[cell]["count"].sum()
+            for _ in range(noise_rate):
+                readout, errs = sim_errors(noise_word)
+                errors.append(errs)
+                readouts.append(readout)
+                words.append(noise_word)
+                genes.append("noise")
 
             exact_counts = Counter()
             corrected_counts = Counter()
