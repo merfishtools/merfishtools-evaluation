@@ -32,6 +32,7 @@ def hamming1_env(word):
 
 
 codebook = pd.read_table(snakemake.input.codebook, index_col=0, dtype=np.dtype(str))
+import pdb; pdb.set_trace()
 codebook["codeword"] = codebook["codeword"].apply(bitarray)
 codebook["expressed"] = codebook["expressed"] == "1"
 noise_word = bitarray("0" * len(codebook["codeword"].iloc[0]))
