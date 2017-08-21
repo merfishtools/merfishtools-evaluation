@@ -4,6 +4,12 @@ import csv
 import pandas as pd
 import numpy as np
 
+def nbinom_params(mean, cv):
+    variance = (cv * mean) ** 2
+    p = 1 - ((variance - mean) / variance)
+    n = (mean * p) / (1 - p)
+    return n, p
+
 
 # Fix the seed for a particular mean, so that results are reproducible.
 np.random.seed(int(snakemake.wildcards.mean))
@@ -16,8 +22,9 @@ with open(snakemake.output[0], "w") as known_out:
     known_out = csv.writer(known_out, delimiter="\t")
     known_out.writerow(["cell", "feat", "mhd2", "mhd4", "count"])
     for cell in range(snakemake.params.cell_count):
-        random_counts = np.random.poisson(int(snakemake.wildcards.mean), len(genes))
+        random_counts = np.random.negative_binomial(*nbinom_params(int(snakemake.wildcards.mean), 3.56), len(genes))
+        # random_counts = np.random.poisson(int(snakemake.wildcards.mean), len(genes))
         for gene, count in zip(genes, random_counts):
-            if gene == "PTPN14":  # PTPN14 occurs in all codebooks.
-                count = np.random.poisson(1500)
+            #if gene == "PTPN14":  # PTPN14 occurs in all codebooks.
+            #    count = np.random.poisson(1500)
             known_out.writerow([cell, gene, gene in codebook_mhd2.index, gene in codebook_mhd4.index, count])

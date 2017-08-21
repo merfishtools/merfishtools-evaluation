@@ -64,7 +64,10 @@ rule all:
                context="paper",
                dist=["2", "4", "2-8", "4-4"],
                feature="maxexpr",
-               pred=["raw", "posterior"])
+               pred=["raw", "posterior"]),
+        expand("results/{context}/{dataset}.default.expression_dist.svg",
+               context="paper",
+               dataset=datasets + ["simulated-MHD4", "simulated-MHD2"])
 
 
 #### handling raw data ####
@@ -457,7 +460,7 @@ rule plot_qq:
 
 rule plot_expression_dist:
     input:
-        lambda wildcards: matrices(wildcards.dataset, settings=wildcards.settings)
+        lambda wildcards: matrices(wildcards.dataset, type="counts", settings=wildcards.settings)
     output:
         "results/{context}/{dataset}.{settings}.expression_dist.svg"
     conda:
@@ -468,7 +471,7 @@ rule plot_expression_dist:
 
 rule plot_overdispersion:
     input:
-        lambda wildcards: matrices(wildcards.dataset, type="normalized_expressions", settings=wildcards.settings)
+        lambda wildcards: matrices(wildcards.dataset, type="counts", settings=wildcards.settings)
     output:
         "results/{context}/{dataset}.{settings}.overdispersion.svg"
     conda:

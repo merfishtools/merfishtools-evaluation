@@ -7,6 +7,8 @@ import numpy as np
 from bitarray import bitarray
 
 
+noise_rate = 10
+
 # Fix the seed for a particular mean, so that results are reproducible.
 np.random.seed(int(snakemake.wildcards.mean))
 
@@ -32,7 +34,6 @@ def hamming1_env(word):
 
 
 codebook = pd.read_table(snakemake.input.codebook, index_col=0, dtype=np.dtype(str))
-import pdb; pdb.set_trace()
 codebook["codeword"] = codebook["codeword"].apply(bitarray)
 codebook["expressed"] = codebook["expressed"] == "1"
 noise_word = bitarray("0" * len(codebook["codeword"].iloc[0]))
@@ -70,10 +71,9 @@ def simulate(codebook, counts_path, stats_path, has_corrected=True):
                     words.append(word)
                     genes.append(gene)
 
-            # add noise (real data shows a rate similar to the total
-            # amount of expression)
-            noise_rate = known_counts.loc[cell]["count"].sum()
-            for _ in range(noise_rate):
+            # add noise (real data shows a rate between 5 and 30)
+            noise_count = noise_rate * known_counts.loc[cell]["count"].sum()
+            for _ in range(noise_count):
                 readout, errs = sim_errors(noise_word)
                 errors.append(errs)
                 readouts.append(readout)
