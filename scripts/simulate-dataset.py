@@ -14,6 +14,8 @@ np.random.seed(int(snakemake.wildcards.mean))
 
 p0 = snakemake.params.ds["err01"]
 p1 = snakemake.params.ds["err10"]
+N = snakemake.params.ds["N"]
+m = snakemake.params.ds["m"]
 
 
 def sim_errors(word):
@@ -21,9 +23,11 @@ def sim_errors(word):
     err10 = bitarray(list(p <= p1)) & word
     err01 = bitarray(list(p <= p0)) & ~word
     readout = (word ^ err10) ^ err01
-    errs = err10.count(True) + err01.count(True)
+    err_10_count = err10.count(True)
+    err_01_count = err01.count(True)
+    errs = err_10_count + err_01_count
     assert errs == 0 or word != readout
-    return readout, errs
+    return readout, errs, err_01_count, err_10_count
 
 
 def hamming1_env(word):
@@ -40,16 +44,19 @@ noise_word = bitarray("0" * len(codebook["codeword"].iloc[0]))
 
 known_counts = pd.read_table(snakemake.input.known_counts, index_col=[0, 1])
 
-def simulate(codebook, counts_path, stats_path, has_corrected=True):
+def simulate(codebook, counts_path, readouts_path, stats_path, has_corrected=True):
     lookup_exact = {word.tobytes(): gene for gene, word, _ in codebook.itertuples()}
     if has_corrected:
         lookup_corrected = {w.tobytes(): gene for gene, word, _ in codebook.itertuples() for w in hamming1_env(word)}
     else:
         lookup_corrected = {}
 
-    with open(counts_path, "w") as sim_out:
+    with open(counts_path, "w") as sim_out, open(readouts_path, "w") as readouts_out:
         sim_out = csv.writer(sim_out, delimiter="\t")
         sim_out.writerow(["cell", "feat", "dist", "cell_x", "cell_y", "x", "y"])
+
+        readouts_out = csv.writer(readouts_out, delimiter="\t")
+        readouts_out.writerow(["experiment", "cell", "feat", "readout"])
 
         stats = []
         for cell in range(snakemake.params.cell_count):
@@ -57,6 +64,8 @@ def simulate(codebook, counts_path, stats_path, has_corrected=True):
             words = []
             genes = []
             errors = []
+            err_01_counts = []
+            err_10_counts = []
 
             total_counts = 0
             for gene, word, expressed in codebook.itertuples():
@@ -67,17 +76,22 @@ def simulate(codebook, counts_path, stats_path, has_corrected=True):
                 count = known_counts.loc[cell, gene]["count"]
                 total_counts += count
                 for _ in range(count):
-                    readout, errs = sim_errors(word)
+                    readout, errs, err_01_count, err_10_count = sim_errors(word)
                     errors.append(errs)
+                    err_01_counts.append(err_01_count)
+                    err_10_counts.append(err_10_count)
                     readouts.append(readout)
                     words.append(word)
                     genes.append(gene)
+
+            print("effective 0-1 error-rate:", sum(err_01_counts) / ((N - m) * len(readouts)))
+            print("effective 1-0 error-rate:", sum(err_10_counts) / (m * len(readouts)))
 
             # add noise
             noise_count = int(noise_rate * total_counts)
             print("noise count: ", noise_count)
             for _ in range(noise_count):
-                readout, errs = sim_errors(noise_word)
+                readout, errs, err_01_count, err_10_count = sim_errors(noise_word)
                 if has_corrected:
                     if errs < 3:
                         continue
@@ -88,46 +102,50 @@ def simulate(codebook, counts_path, stats_path, has_corrected=True):
                 words.append(noise_word)
                 genes.append("noise")
 
-            exact_counts = Counter()
-            corrected_counts = Counter()
-            exact_miscalls = Counter()
-            corrected_miscalls = Counter()
-            exact_noise_miscalls = Counter()
-            corrected_noise_miscalls = Counter()
+            ReadoutCounter = lambda: defaultdict(list)
+            exact_counts = ReadoutCounter()
+            corrected_counts = ReadoutCounter()
+            exact_miscalls = ReadoutCounter()
+            corrected_miscalls = ReadoutCounter()
+            exact_noise_miscalls = ReadoutCounter()
+            corrected_noise_miscalls = ReadoutCounter()
             for readout, errs, word, orig_gene in zip(readouts, errors, words, genes):
                 try:
                     gene = lookup_exact[readout.tobytes()]
-                    exact_counts[gene] += 1
+                    exact_counts[gene].append(readout)
                     if errs > 0:
                         if orig_gene == "noise":
-                            exact_noise_miscalls[gene] += 1
+                            exact_noise_miscalls[gene].append(readout)
                         else:
-                            exact_miscalls[gene] += 1
+                            exact_miscalls[gene].append(readout)
                 except KeyError:
                     try:
                         gene = lookup_corrected[readout.tobytes()]
-                        corrected_counts[gene] += 1
+                        corrected_counts[gene].append(readout)
                         if errs > 1:
                             if orig_gene == "noise":
-                                corrected_noise_miscalls[gene] += 1
+                                corrected_noise_miscalls[gene].append(readout)
                             else:
-                                corrected_miscalls[gene] += 1
+                                corrected_miscalls[gene].append(readout)
                     except KeyError:
                         # readout is lost
                         pass
 
             for gene in set(chain(exact_counts, corrected_counts)):
-                for _ in range(exact_counts[gene]):
+                for _ in range(len(exact_counts[gene])):
                     sim_out.writerow([cell, gene, 0, 0, 0, 0, 0])
-                for _ in range(corrected_counts[gene]):
+                for _ in range(len(corrected_counts[gene])):
                     sim_out.writerow([cell, gene, 1, 0, 0, 0, 0])
+                for readout in chain(exact_counts[gene], corrected_counts[gene]):
+                    readouts_out.writerow([1, cell, gene, readout.to01()])
+
 
             for gene in exact_counts:
                 known = known_counts.loc[cell, gene]["count"]
-                counts = exact_counts[gene] + corrected_counts[gene]
-                _exact_miscalls = exact_miscalls[gene]
-                _corrected_miscalls = corrected_miscalls[gene]
-                noise_miscalls = exact_noise_miscalls[gene] + corrected_noise_miscalls[gene]
+                counts = len(exact_counts[gene]) + len(corrected_counts[gene])
+                _exact_miscalls = len(exact_miscalls[gene])
+                _corrected_miscalls = len(corrected_miscalls[gene])
+                noise_miscalls = len(exact_noise_miscalls[gene]) + len(corrected_noise_miscalls[gene])
                 miscalls = _exact_miscalls + _corrected_miscalls + noise_miscalls
                 missed = known - counts + miscalls
                 stats.append([cell, gene, known, missed, counts, miscalls, noise_miscalls])
@@ -157,4 +175,4 @@ def simulate(codebook, counts_path, stats_path, has_corrected=True):
 
 
 print("Simulating dataset")
-simulate(codebook, snakemake.output.sim_counts, snakemake.output.stats, has_corrected=snakemake.params.ds["has_corrected"])
+simulate(codebook, snakemake.output.sim_counts, snakemake.output.readouts, snakemake.output.stats, has_corrected=snakemake.params.ds["has_corrected"])

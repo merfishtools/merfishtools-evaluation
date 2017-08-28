@@ -336,6 +336,7 @@ rule simulate:
         codebook=lambda wildcards: config["codebooks"][wildcards.dataset]
     output:
         sim_counts="data/{dataset}.{mean}.all.txt",
+        readouts="data/{dataset}.{mean}.readouts.txt",
         stats="data/{dataset}.{mean}.stats.txt"
     wildcard_constraints:
         dataset="simulated.+"
