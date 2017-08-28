@@ -1,87 +1,11 @@
 GOBPID	Pvalue	OddsRatio	ExpCount	Count	Size	Term
-GO:0010951	0.0015255530129672	Inf	0.0869565217391304	2	2	negative regulation of endopeptidase activity
-GO:0052547	0.0015255530129672	Inf	0.0869565217391304	2	2	regulation of peptidase activity
-GO:0005975	0.0044143797510477	22.0714285714286	0.434782608695652	3	10	carbohydrate metabolic process
-GO:0055085	0.0044143797510477	22.0714285714286	0.434782608695652	3	10	transmembrane transport
-GO:0045861	0.00883147653666679	36	0.173913043478261	2	4	negative regulation of proteolysis
-GO:0051346	0.00883147653666679	36	0.173913043478261	2	4	negative regulation of hydrolase activity
-GO:0043687	0.0144563245097864	23.7777777777778	0.217391304347826	2	5	post-translational protein modification
-GO:0009266	0.021295628295284	17.6666666666667	0.260869565217391	2	6	response to temperature stimulus
-GO:0034605	0.021295628295284	17.6666666666667	0.260869565217391	2	6	cellular response to heat
-GO:0000059	0.0434782608695652	Inf	0.0434782608695652	1	1	protein import into nucleus, docking
-GO:0000187	0.0434782608695652	Inf	0.0434782608695652	1	1	activation of MAPK activity
-GO:0002274	0.0434782608695652	Inf	0.0434782608695652	1	1	myeloid leukocyte activation
-GO:0002544	0.0434782608695652	Inf	0.0434782608695652	1	1	chronic inflammatory response
-GO:0002577	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of antigen processing and presentation
-GO:0002581	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of antigen processing and presentation of peptide or polysaccharide antigen via MHC class II
-GO:0002605	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of dendritic cell antigen processing and presentation
-GO:0002687	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of leukocyte migration
-GO:0002688	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of leukocyte chemotaxis
-GO:0003151	0.0434782608695652	Inf	0.0434782608695652	1	1	outflow tract morphogenesis
-GO:0003197	0.0434782608695652	Inf	0.0434782608695652	1	1	endocardial cushion development
-GO:0003417	0.0434782608695652	Inf	0.0434782608695652	1	1	growth plate cartilage development
-GO:0006020	0.0434782608695652	Inf	0.0434782608695652	1	1	inositol metabolic process
-GO:0006066	0.0434782608695652	Inf	0.0434782608695652	1	1	alcohol metabolic process
-GO:0010324	0.0434782608695652	Inf	0.0434782608695652	1	1	membrane invagination
-GO:0010633	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of epithelial cell migration
-GO:0010748	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of plasma membrane long-chain fatty acid transport
-GO:0010751	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of nitric oxide mediated signal transduction
-GO:0010754	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of cGMP-mediated signaling
-GO:0010757	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of plasminogen activation
-GO:0010759	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of macrophage chemotaxis
-GO:0010763	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of fibroblast migration
-GO:0015798	0.0434782608695652	Inf	0.0434782608695652	1	1	myo-inositol transport
-GO:0015909	0.0434782608695652	Inf	0.0434782608695652	1	1	long-chain fatty acid transport
-GO:0018149	0.0434782608695652	Inf	0.0434782608695652	1	1	peptide cross-linking
-GO:0019935	0.0434782608695652	Inf	0.0434782608695652	1	1	cyclic-nucleotide-mediated signaling
-GO:0030195	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of blood coagulation
-GO:0030511	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of transforming growth factor beta receptor signaling pathway
-GO:0030823	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of cGMP metabolic process
-GO:0031638	0.0434782608695652	Inf	0.0434782608695652	1	1	zymogen activation
-GO:0032026	0.0434782608695652	Inf	0.0434782608695652	1	1	response to magnesium ion
-GO:0032102	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of response to external stimulus
-GO:0032369	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of lipid transport
-GO:0032680	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of tumor necrosis factor production
-GO:0032695	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of interleukin-12 production
-GO:0032891	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of organic acid transport
-GO:0032914	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of transforming growth factor beta1 production
-GO:0034599	0.0434782608695652	Inf	0.0434782608695652	1	1	cellular response to oxidative stress
-GO:0034766	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of ion transmembrane transport
-GO:0035265	0.0434782608695652	Inf	0.0434782608695652	1	1	organ growth
-GO:0036066	0.0434782608695652	Inf	0.0434782608695652	1	1	protein O-linked fucosylation
-GO:0040037	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of fibroblast growth factor receptor signaling pathway
-GO:0042035	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of cytokine biosynthetic process
-GO:0042107	0.0434782608695652	Inf	0.0434782608695652	1	1	cytokine metabolic process
-GO:0042535	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of tumor necrosis factor biosynthetic process
-GO:0043032	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of macrophage activation
-GO:0043154	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of cysteine-type endopeptidase activity involved in apoptotic process
-GO:0043537	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of blood vessel endothelial cell migration
-GO:0043576	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of respiratory gaseous exchange
-GO:0043652	0.0434782608695652	Inf	0.0434782608695652	1	1	engulfment of apoptotic cell
-GO:0045727	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of translation
-GO:0048521	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of behavior
-GO:0050820	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of coagulation
-GO:0051292	0.0434782608695652	Inf	0.0434782608695652	1	1	nuclear pore complex assembly
-GO:0051895	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of focal adhesion assembly
-GO:0051918	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of fibrinolysis
-GO:0060348	0.0434782608695652	Inf	0.0434782608695652	1	1	bone development
-GO:0060350	0.0434782608695652	Inf	0.0434782608695652	1	1	endochondral bone morphogenesis
-GO:0070613	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of protein processing
-GO:0071634	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of transforming growth factor beta production
-GO:0071674	0.0434782608695652	Inf	0.0434782608695652	1	1	mononuclear cell migration
-GO:0071732	0.0434782608695652	Inf	0.0434782608695652	1	1	cellular response to nitric oxide
-GO:0090303	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of wound healing
-GO:1900048	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of hemostasis
-GO:1902001	0.0434782608695652	Inf	0.0434782608695652	1	1	fatty acid transmembrane transport
-GO:1903035	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of response to wounding
-GO:1903318	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of protein maturation
-GO:1903557	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of tumor necrosis factor superfamily cytokine production
-GO:1903792	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of anion transport
-GO:1903959	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of anion transmembrane transport
-GO:1904035	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of epithelial cell apoptotic process
-GO:2000116	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of cysteine-type endopeptidase activity
-GO:2000191	0.0434782608695652	Inf	0.0434782608695652	1	1	regulation of fatty acid transport
-GO:2000353	0.0434782608695652	Inf	0.0434782608695652	1	1	positive regulation of endothelial cell apoptotic process
-GO:2001027	0.0434782608695652	Inf	0.0434782608695652	1	1	negative regulation of endothelial cell chemotaxis
-GO:0044710	0.0444813939427252	8.57142857142857	1.69565217391304	4	39	single-organism metabolic process
-GO:0044267	0.0489473973506293	8.22222222222222	1.73913043478261	4	40	cellular protein metabolic process
+GO:0010951	0.00232883092687471	Inf	0.105263157894737	2	2	negative regulation of endopeptidase activity
+GO:0052547	0.00232883092687471	Inf	0.105263157894737	2	2	regulation of peptidase activity
+GO:0055085	0.00862553256762373	14.4285714285714	0.526315789473684	3	10	transmembrane transport
+GO:0045861	0.0133143490153271	26.5	0.210526315789474	2	4	negative regulation of proteolysis
+GO:0051346	0.0133143490153271	26.5	0.210526315789474	2	4	negative regulation of hydrolase activity
+GO:0043687	0.0216584137171002	17.5	0.263157894736842	2	5	post-translational protein modification
+GO:0009266	0.0317057393327675	13	0.315789473684211	2	6	response to temperature stimulus
+GO:0034605	0.0317057393327675	13	0.315789473684211	2	6	cellular response to heat
+GO:0044723	0.0317057393327675	13	0.315789473684211	2	6	single-organism carbohydrate metabolic process
+GO:0044281	0.0353441708479461	7.30769230769231	0.842105263157895	3	16	small molecule metabolic process

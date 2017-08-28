@@ -7,7 +7,7 @@ import numpy as np
 from bitarray import bitarray
 
 
-noise_rate = 10
+noise_rate = 0.5
 
 # Fix the seed for a particular mean, so that results are reproducible.
 np.random.seed(int(snakemake.wildcards.mean))
@@ -58,12 +58,14 @@ def simulate(codebook, counts_path, stats_path, has_corrected=True):
             genes = []
             errors = []
 
+            total_counts = 0
             for gene, word, expressed in codebook.itertuples():
                 if not expressed:
                     # Skip entries that are marked as not expressed in the codebook.
                     # These can act as misidentification probes.
                     continue
                 count = known_counts.loc[cell, gene]["count"]
+                total_counts += count
                 for _ in range(count):
                     readout, errs = sim_errors(word)
                     errors.append(errs)
@@ -71,10 +73,16 @@ def simulate(codebook, counts_path, stats_path, has_corrected=True):
                     words.append(word)
                     genes.append(gene)
 
-            # add noise (real data shows a rate between 5 and 30)
-            noise_count = noise_rate * known_counts.loc[cell]["count"].sum()
+            # add noise
+            noise_count = int(noise_rate * total_counts)
+            print("noise count: ", noise_count)
             for _ in range(noise_count):
                 readout, errs = sim_errors(noise_word)
+                if has_corrected:
+                    if errs < 3:
+                        continue
+                elif errs < 4:
+                    continue
                 errors.append(errs)
                 readouts.append(readout)
                 words.append(noise_word)
@@ -84,17 +92,26 @@ def simulate(codebook, counts_path, stats_path, has_corrected=True):
             corrected_counts = Counter()
             exact_miscalls = Counter()
             corrected_miscalls = Counter()
+            exact_noise_miscalls = Counter()
+            corrected_noise_miscalls = Counter()
             for readout, errs, word, orig_gene in zip(readouts, errors, words, genes):
                 try:
                     gene = lookup_exact[readout.tobytes()]
                     exact_counts[gene] += 1
                     if errs > 0:
-                        exact_miscalls[gene] += 1
+                        if orig_gene == "noise":
+                            exact_noise_miscalls[gene] += 1
+                        else:
+                            exact_miscalls[gene] += 1
                 except KeyError:
                     try:
-                        corrected_counts[lookup_corrected[readout.tobytes()]] += 1
+                        gene = lookup_corrected[readout.tobytes()]
+                        corrected_counts[gene] += 1
                         if errs > 1:
-                            corrected_miscalls[gene] += 1
+                            if orig_gene == "noise":
+                                corrected_noise_miscalls[gene] += 1
+                            else:
+                                corrected_miscalls[gene] += 1
                     except KeyError:
                         # readout is lost
                         pass
@@ -110,12 +127,13 @@ def simulate(codebook, counts_path, stats_path, has_corrected=True):
                 counts = exact_counts[gene] + corrected_counts[gene]
                 _exact_miscalls = exact_miscalls[gene]
                 _corrected_miscalls = corrected_miscalls[gene]
-                miscalls = _exact_miscalls + _corrected_miscalls
+                noise_miscalls = exact_noise_miscalls[gene] + corrected_noise_miscalls[gene]
+                miscalls = _exact_miscalls + _corrected_miscalls + noise_miscalls
                 missed = known - counts + miscalls
-                stats.append([cell, gene, known, missed, counts, miscalls])
+                stats.append([cell, gene, known, missed, counts, miscalls, noise_miscalls])
 
         stats = pd.DataFrame(stats)
-        stats.columns = ["cell", "gene", "truth", "missed", "counts", "miscalls"]
+        stats.columns = ["cell", "gene", "truth", "missed", "counts", "miscalls", "noise-miscalls"]
         stats["total"] = stats["truth"] + stats["miscalls"]
         stats["calls"] = stats["counts"] - stats["miscalls"]
         stats["call-rate"] = stats["calls"] / stats["total"]

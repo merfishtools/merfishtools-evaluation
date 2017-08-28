@@ -178,18 +178,22 @@ rule expressions:
     output:
         pmf="expressions/{dataset}.{experiment,[0-9]+}.{group}.{settings}.txt",
         est="expressions/{dataset}.{experiment,[0-9]+}.{group}.{settings}.est.txt",
+        stats="expressions/{dataset}.{experiment,[0-9]+}.{group}.{settings}.stats.txt"
     params:
         ds=get_expressions_params
     benchmark:
         "bench/exp/{dataset}.{settings}.txt"
     conda:
         "envs/analysis.yml"
+    log:
+        "logs/exp/{dataset}.{experiment}.{group}.{settings}.exp.log"
     threads: 8
     shell:
-        "merfishtools exp {input.codebook} --p0 {params.ds[err01]} "
+        "merfishtools -v exp {input.codebook} --p0 {params.ds[err01]} "
         "--p1 {params.ds[err10]} "
         "--estimate {output.est} -t {threads} "
-        "< {input.data} > {output.pmf}"
+        "--stats {output.stats} "
+        "< {input.data} > {output.pmf} 2> {log}"
 
 
 rule expression_matrix:

@@ -31,23 +31,29 @@ for i, (mean, posterior_counts, raw_counts, known_counts) in enumerate(zip(
 
     posterior_estimates = pd.read_table(posterior_counts, index_col=[0, 1])
     raw_counts = pd.read_table(raw_counts, index_col=[0, 1])
+
+    
     raw_counts = raw_counts["exact"] + raw_counts["corrected"]
     known_counts = pd.read_table(known_counts, index_col=[0, 1])
     known_counts = known_counts.reindex(codebook.index, level=1)
+    # remove PTPN14 because we have artificially increased it's simulated expression
+    # this will bias our plots
+    known_counts = known_counts[known_counts.index.get_level_values(1) != "PTPN14"]
 
     raw_counts = raw_counts.reindex(known_counts.index, fill_value=0)
     posterior_estimates = posterior_estimates.reindex(known_counts.index, fill_value=0)
 
     dropouts = known_counts[(known_counts["count"] > 0) & (raw_counts == 0)]
-    print("droupouts", dropouts)
+    print("dropouts", dropouts)
 
     counts.append(pd.DataFrame({"known": known_counts["count"], "raw": raw_counts, "posterior": posterior_estimates["expr_map"]}))
-    errors.append(pd.DataFrame({"error": raw_counts - known_counts["count"], "mean": mean, "type": "raw"}))
-    errors.append(pd.DataFrame({"error": posterior_estimates["expr_map"] - known_counts["count"], "mean": mean, "type": "posterior"}))
+    errors.append(pd.DataFrame({"error": raw_counts - known_counts["count"], "mean": mean, "type": "raw", "known": known_counts["count"]}))
+    errors.append(pd.DataFrame({"error": posterior_estimates["expr_map"] - known_counts["count"], "mean": mean, "type": "posterior", "known": known_counts["count"]}))
     errors.append(pd.DataFrame({
         "error": ci_error(posterior_estimates["expr_ci_lower"], posterior_estimates["expr_ci_upper"], known_counts["count"]),
         "mean": mean,
-        "type": "ci"}))
+        "type": "ci",
+        "known": known_counts["count"]}))
 
 counts = pd.concat(counts)
 
@@ -80,7 +86,15 @@ errors = pd.concat(errors)
 
 x, y = snakemake.config["plots"]["figsize"]
 plt.figure(figsize=(x * 1.5, y))
+
 pred_errors = errors[(errors["type"] == "raw") | (errors["type"] == "posterior")]
+#bins = pd.cut(pred_errors["known"], 
+#              [0, 6, 11, 16, 21, 26, 30, 100000], 
+#              right=False, 
+#              labels=["0-5", "6-10", "11-15", "16-20", "21-25", "26-30", "≥30"])
+#pred_errors["bin"] = bins
+
+
 sns.violinplot(x="mean", y="error", hue="type", data=pred_errors, bw=1, split=True, inner="quartile", palette=colors, linewidth=1)
 plt.plot(plt.xlim(), [0, 0], "-k", linewidth=1, zorder=-5)
 

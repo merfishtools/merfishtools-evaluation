@@ -26,4 +26,6 @@ with open(snakemake.output[0], "w") as known_out:
         for gene, count in zip(genes, random_counts):
             if gene == "PTPN14":  # PTPN14 occurs in all codebooks.
                 count = np.random.poisson(1500)
+            if gene.startswith("notarget") or gene.startswith("blank"):
+                count = 0
             known_out.writerow([cell, gene, gene in codebook_mhd2.index, gene in codebook_mhd4.index, count])
