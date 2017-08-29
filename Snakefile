@@ -68,9 +68,7 @@ rule all:
         expand("results/{context}/{dataset}.default.expression_dist.svg",
                context="paper",
                dataset=datasets + ["simulated-MHD4", "simulated-MHD2"]),
-        expand("figures/{dataset}.error-rates.svg",
-               dataset="140genesData")
-
+        "figures/fig_error_rates.svg"
 
 #### handling raw data ####
 
@@ -220,7 +218,7 @@ rule expressions:
     threads: 8
     shell:
         "merfishtools -v exp {input.codebook} --p0 {params.ds[err01]} "
-        "--p1 {params.ds[err10]} "
+        "--p1 {params.ds[err10]} --seed 9823749 "
         "--estimate {output.est} -t {threads} "
         "--stats {output.stats} "
         "< {input.data} > {output.pmf} 2> {log}"

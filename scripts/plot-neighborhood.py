@@ -32,10 +32,11 @@ if feature == "maxexpr":
 codeword = codebook[feature]
 counts["dist"] = [hamming_distance(codeword, codebook[feat]) for feat in counts["feat"]]
 
-counts.sort_values("dist", inplace=True)
+counts.sort_values(["dist", "feat"], inplace=True)
+counts = counts[~(counts["feat"].str.startswith("blank") | counts["feat"].str.startswith("notarget"))]
 
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
-sns.stripplot(x="feat", y="total", hue="dist", data=counts, rasterized=True, color="red", size=2)
+sns.stripplot(x="feat", y="total", hue="dist", data=counts, rasterized=True, palette="Reds_d", size=2)
 plt.xticks([])
 plt.ylim((0, 500))
 plt.legend().set_title("hamming distance to {}".format(feature))
