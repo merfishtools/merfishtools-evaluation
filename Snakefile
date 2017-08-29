@@ -383,6 +383,8 @@ rule plot_error_rates:
         expand("error-rates/{dataset}.{experiment}.error-rates.txt", experiment=get_experiments)
     output:
         "results/{context}/{dataset}.error-rates.svg"
+    params:
+        experiments=get_experiments
     script:
         "scripts/plot-error-rates.py"
 
