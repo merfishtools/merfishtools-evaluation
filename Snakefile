@@ -67,7 +67,9 @@ rule all:
                pred=["raw", "posterior"]),
         expand("results/{context}/{dataset}.default.expression_dist.svg",
                context="paper",
-               dataset=datasets + ["simulated-MHD4", "simulated-MHD2"])
+               dataset=datasets + ["simulated-MHD4", "simulated-MHD2"]),
+        expand("figures/{dataset}.error-rates.svg",
+               dataset="140genesData")
 
 
 #### handling raw data ####
@@ -180,18 +182,20 @@ rule estimate_real_error_rates:
     wildcard_constraints:
         dataset="140genesData"
     shell:
-        "grep -P '^{wildcards.experiment}\\t' {input.readouts} | "
+        "grep -P '^{wildcards.experiment}\\t' {input.readouts} | cut -f2,3,4 | "
         "merfishtools est-error-rates {input.codebook} > {output}"
 
 
 rule estimate_simulated_error_rates:
     input:
-        readouts="data/{dataset}.{experiment}.readouts.txt"
+        readouts="data/{dataset}.{experiment}.readouts.txt",
         codebook=get_codebook
     output:
         "error-rates/{dataset}.{experiment}.error-rates.txt"
     wildcard_constraints:
         dataset="simulated-.+"
+    conda:
+        "envs/analysis.yml"
     shell:
         "merfishtools est-error-rates {input.codebook} "
         "< {input.readouts} > {output}"
@@ -377,14 +381,27 @@ rule simulate:
 
 #### plots ####
 
+def get_experiments(wildcards):
+    if wildcards.dataset.startswith("simulated"):
+        return means
+    elif wildcards.dataset == "140genesData":
+        return [e for e in experiments(wildcards.dataset) 
+                if config["codebooks"][wildcards.dataset][e] == 
+                   "codebook/140genesData.{}.txt".format(wildcards.codebook)]
+    else:
+        return experiments(wildcards.dataset)
+    
+
 
 rule plot_error_rates:
     input:
-        expand("error-rates/{dataset}.{experiment}.error-rates.txt", experiment=get_experiments)
+        lambda wildcards: expand("error-rates/{dataset}.{experiment}.error-rates.txt", experiment=get_experiments(wildcards), dataset=wildcards.dataset)
     output:
-        "results/{context}/{dataset}.error-rates.svg"
+        "results/{context}/{dataset}.{codebook}.error-rates.svg"
     params:
         experiments=get_experiments
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/plot-error-rates.py"
 
@@ -629,6 +646,16 @@ rule plot_neighborhood:
 
 
 #### figures ####
+
+
+rule figure_error_rates:
+    input:
+        a="results/paper/140genesData.1.error-rates.svg",
+        b="results/paper/140genesData.2.error-rates.svg"
+    output:
+        "figures/fig_error_rates.svg"
+    script:
+        "scripts/fig-error-rates.py"
 
 
 rule figure_error_rate_uncertainty:
