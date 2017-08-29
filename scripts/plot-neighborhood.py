@@ -36,12 +36,18 @@ counts.sort_values(["dist", "feat"], inplace=True)
 counts = counts[~(counts["feat"].str.startswith("blank") | counts["feat"].str.startswith("notarget"))]
 
 sns.set(style="ticks", palette="colorblind", context=snakemake.wildcards.context)
+x, y = snakemake.config["plots"]["figsize"]
+plt.figure(figsize=(x * 1.5, y))
+
 sns.stripplot(x="feat", y="total", hue="dist", data=counts, rasterized=True, palette="Reds_d", size=2)
 plt.xticks([])
 plt.ylim((0, 500))
 plt.legend().set_title("hamming distance to {}".format(feature))
-plt.ylabel("raw counts")
-plt.xlabel("genes")
+if snakemake.wildcards.pred == "raw":
+    plt.ylabel("raw counts")
+else:
+    plt.ylabel("posterior estimate")
+plt.xlabel("transcripts")
 
 sns.despine(offset=5)
 plt.savefig(snakemake.output.strip, bbox_inches="tight")

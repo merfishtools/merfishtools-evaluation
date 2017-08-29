@@ -56,7 +56,7 @@ def simulate(codebook, counts_path, readouts_path, stats_path, has_corrected=Tru
         sim_out.writerow(["cell", "feat", "dist", "cell_x", "cell_y", "x", "y"])
 
         readouts_out = csv.writer(readouts_out, delimiter="\t")
-        readouts_out.writerow(["experiment", "cell", "feat", "readout"])
+        readouts_out.writerow(["cell", "feat", "readout"])
 
         stats = []
         for cell in range(snakemake.params.cell_count):
@@ -137,7 +137,7 @@ def simulate(codebook, counts_path, readouts_path, stats_path, has_corrected=Tru
                 for _ in range(len(corrected_counts[gene])):
                     sim_out.writerow([cell, gene, 1, 0, 0, 0, 0])
                 for readout in chain(exact_counts[gene], corrected_counts[gene]):
-                    readouts_out.writerow([1, cell, gene, readout.to01()])
+                    readouts_out.writerow([cell, gene, readout.to01()])
 
 
             for gene in exact_counts:

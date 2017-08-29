@@ -15,10 +15,12 @@ error_rates = pd.concat([pd.read_table(f, index_col=0) for f in snakemake.input]
 
 error_rates = pd.DataFrame(error_rates.stack()).reset_index()
 error_rates.columns = ["experiment", "pos", "error-rate", "rate"]
+error_rates["pos"] += 1
 
 sns.barplot(x="pos", y="rate", hue="error-rate", data=error_rates, errwidth=1, linewidth=0, palette=["red", "grey"], saturation=0.7)
 plt.ylim((0.0, plt.ylim()[1] + 0.1))
 plt.ylabel("")
+plt.xlabel("position")
 sns.despine()
 plt.savefig(snakemake.output[0], bbox_inches="tight")
 

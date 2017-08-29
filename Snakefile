@@ -646,6 +646,19 @@ rule plot_neighborhood:
 #### figures ####
 
 
+rule figure_thbs1_bias:
+    input:
+        a="results/paper/neighborhoods/140genesData.2.THBS1.default.raw.neighborhood.svg",
+        b="results/paper/neighborhoods/140genesData.2.THBS1.default.posterior.neighborhood.svg",
+    output:
+        "figures/fig_thbs1_bias.svg"
+    conda:
+        "envs/analysis.yml"
+    script:
+        "scripts/fig-thbs1-bias.py"
+
+
+
 rule figure_error_rates:
     input:
         a="results/paper/140genesData.1.error-rates.svg",
