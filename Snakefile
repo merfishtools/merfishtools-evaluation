@@ -171,6 +171,32 @@ def get_expressions_params(wildcards):
     return ds
 
 
+rule estimate_real_error_rates:
+    input:
+        readouts="data/{dataset}.readouts.txt",
+        codebook=get_codebook
+    output:
+        "error-rates/{dataset}.{experiment}.error-rates.txt"
+    wildcard_constraints:
+        dataset="140genesData"
+    shell:
+        "grep -P '^{wildcards.experiment}\\t' {input.readouts} | "
+        "merfishtools est-error-rates {input.codebook} > {output}"
+
+
+rule estimate_simulated_error_rates:
+    input:
+        readouts="data/{dataset}.{experiment}.readouts.txt"
+        codebook=get_codebook
+    output:
+        "error-rates/{dataset}.{experiment}.error-rates.txt"
+    wildcard_constraints:
+        dataset="simulated-.+"
+    shell:
+        "merfishtools est-error-rates {input.codebook} "
+        "< {input.readouts} > {output}"
+
+
 rule expressions:
     input:
         data="data/{dataset}.{experiment}.{group}.txt",
@@ -350,6 +376,15 @@ rule simulate:
 
 
 #### plots ####
+
+
+rule plot_error_rates:
+    input:
+        expand("error-rates/{dataset}.{experiment}.error-rates.txt", experiment=get_experiments)
+    output:
+        "results/{context}/{dataset}.error-rates.svg"
+    script:
+        "scripts/plot-error-rates.py"
 
 
 rule plot_error_rate_uncertainty:
