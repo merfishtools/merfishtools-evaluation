@@ -654,6 +654,8 @@ rule figure_error_rates:
         b="results/paper/140genesData.2.error-rates.svg"
     output:
         "figures/fig_error_rates.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/fig-error-rates.py"
 
