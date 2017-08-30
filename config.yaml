@@ -3,6 +3,8 @@ groups:
   B: "^1[0-9]$"
   cell0: "^0$"
   cell34: "^34$"
+  cell17: "^17$"
+  cell16: "^16$"
   all: ".*"
 
 datasets:
