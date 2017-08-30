@@ -68,9 +68,7 @@ rule all:
         expand("results/{context}/{dataset}.default.expression_dist.svg",
                context="paper",
                dataset=datasets + ["simulated-MHD4", "simulated-MHD2"]),
-        expand("figures/{dataset}.error-rates.svg",
-               dataset="140genesData")
-
+        "figures/fig_error_rates.svg"
 
 #### handling raw data ####
 
@@ -220,7 +218,7 @@ rule expressions:
     threads: 8
     shell:
         "merfishtools -v exp {input.codebook} --p0 {params.ds[err01]} "
-        "--p1 {params.ds[err10]} "
+        "--p1 {params.ds[err10]} --seed 9823749 "
         "--estimate {output.est} -t {threads} "
         "--stats {output.stats} "
         "< {input.data} > {output.pmf} 2> {log}"
@@ -648,12 +646,27 @@ rule plot_neighborhood:
 #### figures ####
 
 
+rule figure_thbs1_bias:
+    input:
+        a="results/paper/neighborhoods/140genesData.2.THBS1.default.raw.neighborhood.svg",
+        b="results/paper/neighborhoods/140genesData.2.THBS1.default.posterior.neighborhood.svg",
+    output:
+        "figures/fig_thbs1_bias.svg"
+    conda:
+        "envs/analysis.yml"
+    script:
+        "scripts/fig-thbs1-bias.py"
+
+
+
 rule figure_error_rates:
     input:
         a="results/paper/140genesData.1.error-rates.svg",
         b="results/paper/140genesData.2.error-rates.svg"
     output:
         "figures/fig_error_rates.svg"
+    conda:
+        "envs/analysis.yml"
     script:
         "scripts/fig-error-rates.py"
 
@@ -685,9 +698,9 @@ rule figure_naive_vs_map:
 
 rule figure_example:
     input:
-        a="results/paper/expression_pmf/140genesData.1.cell34.FLNC.default.expression_pmf.nolegend.svg",
-        b="results/paper/expression_pmf/140genesData.1.cell0.FLNC.default.expression_pmf.nolegend.svg",
-        c="results/paper/foldchange_cdf/140genesData.1.cell0-vs-cell34.FLNC.default.foldchange_cdf.nolegend.svg",
+        a="results/paper/expression_pmf/140genesData.1.cell16.NUP98.default.expression_pmf.nolegend.svg",
+        b="results/paper/expression_pmf/140genesData.1.cell17.NUP98.default.expression_pmf.nolegend.svg",
+        c="results/paper/foldchange_cdf/140genesData.1.cell17-vs-cell17.NUP98.default.foldchange_cdf.nolegend.svg",
         d="results/paper/expression_pmf/140genesData.1.cell34.PRKCA.default.expression_pmf.legend.svg",
         e="results/paper/expression_pmf/140genesData.1.cell0.PRKCA.default.expression_pmf.nolegend.svg",
         f="results/paper/foldchange_cdf/140genesData.1.cell0-vs-cell34.PRKCA.default.foldchange_cdf.nolegend.svg"

@@ -11,7 +11,7 @@ terms = pd.read_table(snakemake.input.terms, index_col=0)
 genes = pd.read_table(snakemake.input.genes)
 genes.index = genes["goterm"]
 
-terms = terms[terms["Pvalue"] <= 0.01]
+terms = terms[(terms["Pvalue"] <= 0.05) & (terms["Size"] >= 5)]
 
 genes = genes.loc[terms.index]
 genes = genes.set_index(["goterm", "gene"])
@@ -33,7 +33,7 @@ print(annot)
 annot = annot.where(significant | isna, other=" ")
 print(annot)
 
-plt.figure(figsize=(3,2))
+plt.figure(figsize=(10,2))
 sns.heatmap(matrix, cmap=plt.cm.Reds, annot=annot, fmt="s", cbar_kws={"label": "CV"})
 plt.ylabel("")
 plt.xlabel("")
