@@ -68,7 +68,12 @@ rule all:
         expand("results/{context}/{dataset}.default.expression_dist.svg",
                context="paper",
                dataset=datasets + ["simulated-MHD4", "simulated-MHD2"]),
-        "figures/fig_error_rates.svg"
+        "figures/fig_error_rates.svg",
+        expand("results/{context}/em-algorithm/{dataset}.{experiment}.all.default.em-algorithm.svg",
+               context="paper",
+               dataset="140genesData",
+               experiment=experiments("140genesData"))
+               
 
 #### handling raw data ####
 
@@ -641,6 +646,17 @@ rule plot_neighborhood:
         pred="(raw|posterior)"
     script:
         "scripts/plot-neighborhood.py"
+
+
+rule plot_em:
+    input:
+        "logs/exp/{dataset}.{experiment}.{group}.{settings}.exp.log"
+    output:
+        "results/{context}/em-algorithm/{dataset}.{experiment}.{group}.{settings}.em-algorithm.svg"
+    conda:
+        "envs/analysis.yml"
+    script:
+        "scripts/plot-em.py"
 
 
 #### figures ####
