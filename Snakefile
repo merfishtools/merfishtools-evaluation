@@ -41,6 +41,7 @@ rule all:
         "figures/fig_simulation_supp.pdf",
         "figures/fig_simulation_ci_error.pdf",
         "figures/fig_exact_vs_corrected.pdf",
+        "figures/fig_dataset_correlation.pdf",
         expand("figures/fig_{dataset}.{type}.clustering.pdf", dataset=datasets, type=types),
         "results/paper/140genesData.default.go_enrichment.pdf",
         expand(["figures/fig_{dataset}.multidiffexp.pdf",
@@ -99,7 +100,7 @@ rule generate_mhd2_codebook:
     params:
         ds=lambda wildcards: config["datasets"][wildcards.dataset]
     conda:
-        "envs/analysis.yml"
+        "envs/merfishtools.yml"
     shell:
         "cut -f1 {input.template} | tail -n+2 | merfishtools gen-mhd2 "
         "-N {params.ds[N]} -m {params.ds[m]} "
@@ -117,7 +118,7 @@ rule generate_mhd4_codebook:
     params:
         ds=lambda wildcards: config["datasets"][wildcards.dataset]
     conda:
-        "envs/analysis.yml"
+        "envs/merfishtools.yml"
     shell:
         "cut -f1 {input.template} | tail -n+2 | merfishtools gen-mhd4 "
         "-m {params.ds[m]} --not-expressed '(notarget|blank).+' "
@@ -184,6 +185,8 @@ rule estimate_real_error_rates:
         "error-rates/{dataset}.{experiment}.error-rates.txt"
     wildcard_constraints:
         dataset="140genesData"
+    conda:
+        "envs/analysis.yml"
     shell:
         "grep -P '^{wildcards.experiment}\\t' {input.readouts} | cut -f2,3,4 | "
         "merfishtools est-error-rates {input.codebook} > {output}"
@@ -198,7 +201,7 @@ rule estimate_simulated_error_rates:
     wildcard_constraints:
         dataset="simulated-.+"
     conda:
-        "envs/analysis.yml"
+        "envs/merfishtools.yml"
     shell:
         "merfishtools est-error-rates {input.codebook} "
         "< {input.readouts} > {output}"
@@ -215,9 +218,9 @@ rule expressions:
     params:
         ds=get_expressions_params
     benchmark:
-        "bench/exp/{dataset}.{settings}.txt"
+        "bench/exp/{dataset}.{experiment}.{group}.{settings}.txt"
     conda:
-        "envs/analysis.yml"
+        "envs/merfishtools.yml"
     log:
         "logs/exp/{dataset}.{experiment}.{group}.{settings}.exp.log"
     threads: 8
@@ -298,7 +301,7 @@ rule diffexp:
     benchmark:
         "bench/diffexp/{dataset}.{experiment1}.{group1}-vs-{experiment2}.{group2}.{settings}.txt"
     conda:
-        "envs/analysis.yml"
+        "envs/merfishtools.yml"
     threads: 8
     shell:
         "merfishtools diffexp -t {threads} --pseudocounts 1 "
@@ -323,7 +326,7 @@ rule multidiffexp:
     benchmark:
         "bench/multidiffexp/{dataset}.{settings}.txt"
     conda:
-        "envs/analysis.yml"
+        "envs/merfishtools.yml"
     threads: 24
     shell:
         "merfishtools multidiffexp --pseudocounts 1 "
@@ -338,7 +341,7 @@ rule enrichment:
         terms="results/{dataset}.{settings}.go_enrichment.terms.txt",
         genes="results/{dataset}.{settings}.go_enrichment.genes.txt"
     conda:
-        "envs/analysis.yml"
+        "envs/enrichment.yml"
     script:
         "scripts/go-enrichment.R"
 
@@ -620,12 +623,10 @@ rule plot_simulation_pmf:
 
 rule plot_dataset_correlation:
     input:
-        small=matrices("140genesData"),
-        large=matrices("1001genesData"),
-        small_counts=matrices("140genesData", type="counts"),
-        large_counts=matrices("1001genesData", type="counts")
+        small=lambda w: matrices("140genesData", type=w.type),
+        large=lambda w: matrices("1001genesData", type=w.type)
     output:
-        "results/{context}/{settings}.dataset_correlation.svg"
+        "results/{context}/{settings}.dataset_correlation.{type,counts|expressions}.svg"
     conda:
         "envs/analysis.yml"
     script:
@@ -833,14 +834,24 @@ rule figure_model:
     input:
         "figures/sketch-small.svg",
         "figures/events.svg",
-        "figures/urn-model.svg",
-        "figures/model.svg"
+        "figures/urn-model.svg"
     output:
         "figures/fig_model.svg"
     conda:
         "envs/analysis.yml"
     script:
         "scripts/fig-model.py"
+
+
+rule figure_dataset_correlation:
+    input:
+        expand("results/paper/default.dataset_correlation.{type}.svg", type=["counts", "expressions"])
+    output:
+        "figures/fig_dataset_correlation.svg"
+    conda:
+        "envs/analysis.yml"
+    script:
+        "scripts/fig-dataset-correlation.py"
 
 
 #### utils ####
@@ -852,6 +863,6 @@ rule convert_svg:
     output:
         "{prefix}.{fmt,(pdf|png)}"
     conda:
-        "envs/analysis.yml"
+        "envs/cairosvg.yml"
     shell:
         "cairosvg -f {wildcards.fmt} {input} -o {output}"
