@@ -28,11 +28,14 @@ x, y = snakemake.config["plots"]["figsize"]
 plt.figure(figsize=(x * 1.5, y))
 
 for feat, e in exprs.iteritems():
-    plt.plot(np.arange(e.size), e, "k-", linewidth=1, alpha=0.5)
+    curr = e[1:].reset_index(drop=True)
+    last = e[:-1].reset_index(drop=True)
+    #e = ((curr + 1) / (last + 1))
+    plt.semilogy(np.arange(e.size), e, "k-", linewidth=1, alpha=0.5)
 
 sns.despine()
 
 plt.xlabel("EM iteration")
 plt.ylabel("expression")
-plt.ylim((0, 200))
+#plt.ylim((0, 200))
 plt.savefig(snakemake.output[0], bbox_inches="tight")
