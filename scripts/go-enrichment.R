@@ -1,5 +1,7 @@
-library("GOstats")
 library("biomaRt")
+ensembl = useMart("ensembl")#,dataset="hsapiens_gene_ensembl", verbose=TRUE)
+ensembl = useDataset("hsapiens_gene_ensembl", mart=ensembl)
+library("GOstats")
 library("GO.db")
 library("org.Hs.eg.db")
 library("mutoss")
@@ -8,7 +10,6 @@ est <- read.table(snakemake@input[[1]], header = TRUE, stringsAsFactors = FALSE)
 rownames(est) <- est$feat
 
 # translate gene names to entrez ids
-ensembl = useMart("ensembl",dataset="hsapiens_gene_ensembl")
 ids <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = est$feat, mart = ensembl)
 # take the first entrez id in case of ambiguity
 ids <- ids[!duplicated(ids$hgnc_symbol), ]

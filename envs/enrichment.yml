@@ -5,7 +5,7 @@ dependencies:
   - r-base=3.4.1
   - bioconductor-go.db=3.5
   - bioconductor-gostats=2.44
-  - bioconductor-biomart=2.34
+  - bioconductor-biomart=2.34.2
   - bioconductor-multtest=2.34
   - bioconductor-org.hs.eg.db=3.5
   - r-mutoss =0.1_10
