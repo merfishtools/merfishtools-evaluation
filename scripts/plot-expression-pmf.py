@@ -29,6 +29,7 @@ merfishtools.plot_pmf(
 
 # plot raw counts
 ylim = plt.ylim()
+ylim = [0, ylim[1]]
 plt.vlines([count_total],
            *ylim,
            colors="grey",
