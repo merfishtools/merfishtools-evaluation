@@ -633,6 +633,20 @@ rule plot_dataset_correlation:
         "scripts/plot-dataset-correlation.py"
 
 
+rule plot_dataset_correlation_error:
+    input:
+        small=lambda w: matrices("140genesData", type="expressions"),
+        large=lambda w: matrices("1001genesData", type="expressions"),
+        small_counts=lambda w: matrices("140genesData", type="counts"),
+        large_counts=lambda w: matrices("1001genesData", type="counts")
+    output:
+        "results/{context}/{settings}.dataset_correlation_error.svg"
+    conda:
+        "envs/analysis.yml"
+    script:
+        "scripts/plot-dataset-correlation-error.py"
+
+
 rule plot_neighborhood:
     input:
         codebook=get_codebook,
