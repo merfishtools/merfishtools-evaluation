@@ -715,12 +715,9 @@ rule figure_naive_vs_map:
 
 rule figure_example:
     input:
-        a="results/paper/expression_pmf/140genesData.1.cell16.NUP98.default.expression_pmf.nolegend.svg",
-        b="results/paper/expression_pmf/140genesData.1.cell17.NUP98.default.expression_pmf.nolegend.svg",
-        c="results/paper/foldchange_cdf/140genesData.1.cell17-vs-cell17.NUP98.default.foldchange_cdf.nolegend.svg",
-        d="results/paper/expression_pmf/140genesData.1.cell34.PRKCA.default.expression_pmf.legend.svg",
-        e="results/paper/expression_pmf/140genesData.1.cell0.PRKCA.default.expression_pmf.nolegend.svg",
-        f="results/paper/foldchange_cdf/140genesData.1.cell0-vs-cell34.PRKCA.default.foldchange_cdf.nolegend.svg"
+        "results/paper/expression_pmf/140genesData.1.cell16.NUP98.default.expression_pmf.nolegend.svg",
+        "results/paper/expression_pmf/140genesData.1.cell17.NUP98.default.expression_pmf.nolegend.svg",
+        "results/paper/expression_pmf/140genesData.1.cell0.PRKCA.default.expression_pmf.nolegend.svg",
     output:
         "figures/fig_example.svg"
     conda:
