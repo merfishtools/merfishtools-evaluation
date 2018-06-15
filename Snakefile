@@ -834,7 +834,8 @@ rule figure_model:
     input:
         "figures/sketch-small.svg",
         "figures/events.svg",
-        "figures/urn-model.svg"
+        "figures/urn-model.svg",
+        "resources/model.svg"
     output:
         "figures/fig_model.svg"
     conda:
